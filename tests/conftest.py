@@ -4,6 +4,7 @@
 #  -*- coding: utf-8 -*-
 
 # standard libs
+import os
 
 # 3rd party libs
 import pytest
@@ -17,12 +18,37 @@ import sqrubber as sq
 
 
 @pytest.fixture()
-def sqrub():
-    sqrub = sq.Sqrubber(test_sql_input())
+def sqrub_min_sql():
+    sqrub = sq.Sqrubber(min_sql_input())
     return sqrub
 
 
 @pytest.fixture()
-def test_sql_input():
-    data = ['Here is some data']
+def sqrub_not_sql_input():
+    sqrub = sq.Sqrubber(not_sql_input)
+    return sqrub
+
+
+@pytest.fixture()
+def sqrub():
+    sqrub = sq.Sqrubber(sql_file_input())
+    return sqrub
+
+
+@pytest.fixture()
+def min_sql_input():
+    data = ['DROP TABLE employees']
     return data
+
+
+@pytest.fixture()
+def not_sql_input():
+    with open('lorem.txt', 'r') as fh:
+        data = fh.readlines()
+    return data
+
+
+@pytest.fixture()
+def sql_file_input():
+    path = os.path.dirname('example.sql')
+    return path
