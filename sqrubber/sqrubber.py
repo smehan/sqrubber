@@ -51,20 +51,23 @@ def standardize_name(line):
     """
     for tok in DDL_KEYWORDS:
         if tok in line.lower():
-            print("{} is in line: {}".format(tok, line))
             name, remain = split_line_with_token(line, tok)
             name = name.replace(' ', '_')
             return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
 
 
-def add_prefix(self, name, prefix):
+def add_prefix(line, prefix):
     """
     Adds a prefix to a column or table name
     :param name: the name to transform
     :param prefix: the prefix to prepend
     :return: the combined prefix_name
     """
-    pass
+    for tok in DDL_KEYWORDS:
+        if tok in line.lower():
+            name, remain = split_line_with_token(line, tok)
+            name = '_'.join((prefix, name))
+            return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
 
 
 class Sqrubber(object):
@@ -72,7 +75,7 @@ class Sqrubber(object):
     Sqrubber consumes an SQL dump and parses it, cleaning up and transforming the dump
     """
 
-    def __init__(self, input=None):
+    def __init__(self, input=None, prefix=None):
         """Constructor for Sqrubber
         :param input: input file
         """
@@ -95,6 +98,7 @@ class Sqrubber(object):
             except:
                 pass
             raise SystemExit()
+        self.prefix = prefix
 
     def destroy(self):
         """Destructor for Sqrubber"""
@@ -147,14 +151,22 @@ class Sqrubber(object):
 
 
 if __name__ == '__main__':
-    sqrub = Sqrubber(["Drop Table employees"])
+    sqrub = Sqrubber(["Drop Table employees"], 'mdb001')
     if not sqrub.validate():
         print("Input is not DDL, please check input....")
         exit()
     sqrub.doc = sqrub.read_dump('../tests/example.sql')
     sqrub.validate()
     for line in sqrub.doc:
-        print(standardize_name(line))
+        if line == '':
+            continue
+        new_line = standardize_name(line)
+        if sqrub.prefix is not None and new_line is not None:
+            new_line = add_prefix(new_line, sqrub.prefix)
+        if new_line is not None:
+            print(new_line)
+        else:
+            print(line)
 
 
 
