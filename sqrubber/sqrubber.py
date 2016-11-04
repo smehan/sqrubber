@@ -7,6 +7,7 @@
 
 # Standard libs
 import os
+import sys
 import re
 
 # 3rd party libs
@@ -26,13 +27,18 @@ def doubleit(x):
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 
 
-def split_line(line):
+def split_line_with_token(line, tok):
     """
     tokenize the line into components for later use.
-    :param line:
-    :return:
+    :param line: incoming line with DDL/DML token in line
+    :return: three parts of line: DDL/DML token, name, remainder of line
     """
-    pass
+    pattern = re.compile(''.join(('^\s?', tok, '\s+([A-Za-z0-9 _]+)(.*)')))
+    match = re.search(pattern, line.lower())
+    name = match.group(1).strip()
+    remain = match.group(2)
+    return name, remain
+
 
 def remove_spaces(line):
     """
@@ -44,8 +50,9 @@ def remove_spaces(line):
     for tok in DDL_KEYWORDS:
         if tok in line.lower():
             print("{} is in line: {}".format(tok, line))
-            pattern = re.compile(''.join(('^', tok, '([A-Za-z0-9 ])(.*)')))
-            name = re.search(pattern).group(2)
+            name, remain = split_line_with_token(line, tok)
+            name = name.replace(' ', '_')
+            return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
 
 
 def remove_caps(self, line):
@@ -78,14 +85,23 @@ class Sqrubber(object):
         """
         if not input:
             print("Your Sqrubber has no input")
-            exit()
+            try:
+                sys.stdin.close()
+            except:
+                pass
+            raise SystemExit()
         elif isinstance(input, list):
             self.doc = input
+        # FIXME need to be able to test whether type is correct for this.
         elif os.path.isfile(input):
             self.doc = "FILE"
         else:
             print("Error")
-            exit()
+            try:
+                sys.stdin.close()
+            except:
+                pass
+            raise SystemExit()
 
     def destroy(self):
         """Destructor for Sqrubber"""
@@ -137,7 +153,6 @@ class Sqrubber(object):
         pass
 
 
-
 if __name__ == '__main__':
     sqrub = Sqrubber(["Drop Table employees"])
     if not sqrub.validate():
@@ -146,7 +161,7 @@ if __name__ == '__main__':
     sqrub.doc = sqrub.read_dump('../tests/example.sql')
     sqrub.validate()
     for line in sqrub.doc:
-        sqrub.remove_spaces(line)
+        print(remove_spaces(line))
 
 
 
