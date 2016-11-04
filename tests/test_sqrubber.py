@@ -46,7 +46,10 @@ def test_file_check(sqrub):
     assert sqrub
 
 
-def test_remove_spaces():
-    assert 'DROP TABLE employees;' == sq.remove_spaces('DROP TABLE employees;')
-    assert 'CREATE TABLE employees (' == sq.remove_spaces('CREATE TABLE employees (')
-    assert 'CREATE TABLE former_employees (' == sq.remove_spaces('CREATE TABLE former employees (')
+def test_standardize_name():
+    assert 'DROP TABLE employees;' == sq.standardize_name('DROP TABLE employees;')
+    assert 'CREATE TABLE employees (' == sq.standardize_name('CREATE TABLE employees (')
+    assert 'CREATE TABLE former_employees (' == sq.standardize_name('CREATE TABLE former employees (')
+    assert 'CREATE TABLE yet_to_be_employees (' == sq.standardize_name('CREATE TABLE YET to BE employees (')
+    assert 'DROP TABLE yet_to_be_employees;' == sq.standardize_name('DROP TABLE YET to BE employEeS;')
+

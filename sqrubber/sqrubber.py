@@ -40,9 +40,11 @@ def split_line_with_token(line, tok):
     return name, remain
 
 
-def remove_spaces(line):
+def standardize_name(line):
     """
     Removes spaces and replaces them with underscores in a string.
+    Lower cases all elements of names.
+    Upper cases all elements of DDL
     Assumes that DDL is present in the line. Use _token_in_line to check.
     :param line: the string to work on
     :return: transformed string
@@ -53,15 +55,6 @@ def remove_spaces(line):
             name, remain = split_line_with_token(line, tok)
             name = name.replace(' ', '_')
             return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
-
-
-def remove_caps(self, line):
-    """
-    Transforms uppercase names to lowercase in a string
-    :param line: the string to work on
-    :return: transformed string
-    """
-    pass
 
 
 def add_prefix(self, name, prefix):
@@ -161,7 +154,7 @@ if __name__ == '__main__':
     sqrub.doc = sqrub.read_dump('../tests/example.sql')
     sqrub.validate()
     for line in sqrub.doc:
-        print(remove_spaces(line))
+        print(standardize_name(line))
 
 
 

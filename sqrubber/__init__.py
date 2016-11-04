@@ -1,2 +1,2 @@
 from .sqrubber import Sqrubber
-from .sqrubber import remove_spaces
+from .sqrubber import standardize_name
