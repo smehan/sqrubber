@@ -53,3 +53,9 @@ def test_standardize_name():
     assert 'CREATE TABLE yet_to_be_employees (' == sq.standardize_name('CREATE TABLE YET to BE employees (')
     assert 'DROP TABLE yet_to_be_employees;' == sq.standardize_name('DROP TABLE YET to BE employEeS;')
 
+
+def test_add_prefix():
+    assert 'CREATE TABLE test001_employees (' == sq.add_prefix('CREATE TABLE employees (', 'test001')
+    assert 'CREATE TABLE test001_former_employees (' == sq.add_prefix('CREATE TABLE former_employees (', 'test001')
+    assert 'CREATE TABLE test001_former_employees (' != sq.add_prefix('CREATE TABLE former employees (', 'test001')
+
