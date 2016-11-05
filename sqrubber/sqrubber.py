@@ -158,6 +158,7 @@ if __name__ == '__main__':
     sqrub.validate()
     for line in sqrub.doc:
         print(standardize_name(line))
+    sqrub.destroy()
 
 
 
