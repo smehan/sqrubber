@@ -23,7 +23,7 @@ def doubleit(x):
     """
     return x * 2
 
-
+# These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 
 
@@ -33,7 +33,7 @@ def split_line_with_token(line, tok):
     :param line: incoming line with DDL/DML token in line
     :return: three parts of line: DDL/DML token, name, remainder of line
     """
-    pattern = re.compile(''.join(('^\s?', tok, '\s+([A-Za-z0-9 _]+)(.*)')))
+    pattern = re.compile(''.join(('^\s?', tok, '\s+([A-Za-z0-9 _\'\"]+)(.*)')))
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
@@ -44,13 +44,16 @@ def standardize_name(line):
     """
     Removes spaces and replaces them with underscores in a string.
     Lower cases all elements of names.
-    Upper cases all elements of DDL
+    Upper cases all elements of DDL.
+    Checks special case of [if exists] in DDL verbs.
     Assumes that DDL is present in the line. Use _token_in_line to check.
     :param line: the string to work on
     :return: transformed string
     """
     for tok in DDL_KEYWORDS:
         if tok in line.lower():
+            if ' '.join((tok, 'if exists')) in line.lower():
+                tok = ' '.join((tok, 'if exists'))
             print("{} is in line: {}".format(tok, line))
             name, remain = split_line_with_token(line, tok)
             name = name.replace(' ', '_')
@@ -151,7 +154,7 @@ if __name__ == '__main__':
     if not sqrub.validate():
         print("Input is not DDL, please check input....")
         exit()
-    sqrub.doc = sqrub.read_dump('../tests/example.sql')
+    sqrub.doc = sqrub.read_dump('../data/test.sql')
     sqrub.validate()
     for line in sqrub.doc:
         print(standardize_name(line))
