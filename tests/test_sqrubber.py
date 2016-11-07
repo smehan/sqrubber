@@ -47,15 +47,15 @@ def test_file_check(sqrub):
 
 
 def test_standardize_name():
-    assert 'DROP TABLE employees;' == sq.standardize_name('DROP TABLE employees;')
-    assert 'CREATE TABLE employees (' == sq.standardize_name('CREATE TABLE employees (')
-    assert 'CREATE TABLE former_employees (' == sq.standardize_name('CREATE TABLE former employees (')
-    assert 'CREATE TABLE yet_to_be_employees (' == sq.standardize_name('CREATE TABLE YET to BE employees (')
-    assert 'DROP TABLE yet_to_be_employees;' == sq.standardize_name('DROP TABLE YET to BE employEeS;')
+    assert 'DROP TABLE employees;' == sq.process_line('DROP TABLE employees;')
+    assert 'CREATE TABLE employees (' == sq.process_line('CREATE TABLE employees (')
+    assert 'CREATE TABLE former_employees (' == sq.process_line('CREATE TABLE former employees (')
+    assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (')
+    assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;')
 
 def test_standardize_name_with_if_exists():
-    assert 'DROP TABLE if exists employees;' == sq.standardize_name('DROP TABLE if exists employees;')
-    assert 'CREATE TABLE if exists employees (' == sq.standardize_name('CREATE TABLE if exists employees (')
-    assert 'CREATE TABLE if exists former_employees (' == sq.standardize_name('CREATE TABLE if exists former employees (')
-    assert 'CREATE TABLE if exists yet_to_be_employees (' == sq.standardize_name('CREATE TABLE if exists YET to BE employees (')
-    assert 'DROP TABLE if exists yet_to_be_employees;' == sq.standardize_name('DROP TABLE if exists YET to BE employEeS;')
+    assert 'DROP TABLE if exists employees;' == sq.process_line('DROP TABLE if exists employees;')
+    assert 'CREATE TABLE if exists employees (' == sq.process_line('CREATE TABLE if exists employees (')
+    assert 'CREATE TABLE if exists former_employees (' == sq.process_line('CREATE TABLE if exists former employees (')
+    assert 'CREATE TABLE if exists yet_to_be_employees (' == sq.process_line('CREATE TABLE if exists YET to BE employees (')
+    assert 'DROP TABLE if exists yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;')
