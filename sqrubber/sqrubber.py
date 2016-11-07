@@ -9,6 +9,7 @@
 import os
 import sys
 import re
+import datetime
 
 # 3rd party libs
 
@@ -207,13 +208,18 @@ class Sqrubber(object):
                 data.append(line.strip())
         return data
 
-    def write_dump(self):
+    def write_dump(self, path, output):
         """
         Takes the content of sqrubber object and writes it to a file
+        :param output: the output to write out
         :param path: the path to write to
         :return:
         """
-        pass
+        with open(path, 'w') as f:
+            f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + "\n")
+            for line in output:
+                f.write(line + '\n')
+            f.write("\n\n-- Sqrubber job finished")
 
 
 if __name__ == '__main__':
@@ -223,8 +229,10 @@ if __name__ == '__main__':
         exit()
     sqrub.doc = sqrub.read_dump('../data/test.sql')
     sqrub.validate()
+    output = []
     for line in sqrub.doc:
-        print(process_line(line))
+        output.append(process_line(line))
+    sqrub.write_dump('../data/test_output.sql', output)
     sqrub.destroy()
 
 
