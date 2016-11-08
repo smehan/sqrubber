@@ -8,6 +8,7 @@
 # Standard libs
 import os
 import sys
+import getopt
 import re
 import datetime
 
@@ -222,8 +223,32 @@ class Sqrubber(object):
             f.write("\n\n-- Sqrubber job finished")
 
 
-if __name__ == '__main__':
+def usage():
+    """
+    returns usage string
+    :return:
+    """
+    return 'sqrubber -h -p -i <inputfile> -o <outputfile>'
+
+def main(argv):
+    """
+    drives a command line invocation of Sqrubber
+    :param argv:
+    :return:
+    """
+    try:
+        opts, args = getopt.getopt(argv, 'hpi:o:', ['infile=', 'outfile='])
+    except getopt.GetoptError:
+        print(usage)
+        sys.exit(2)
     sqrub = Sqrubber(["Drop Table employees"])
+    for opt, arg in argv:
+        if opt == '-h':
+            print(usage)
+        elif opt in ['-i', 'infile=']:
+            sqrub.doc = arg
+        elif opt in ['-o', 'outfile=']:
+            sqrub.out = arg
     if not sqrub.validate():
         print("Input is not DDL, please check input....")
         exit()
@@ -234,6 +259,10 @@ if __name__ == '__main__':
         output.append(process_line(line))
     sqrub.write_dump('../data/test_output.sql', output)
     sqrub.destroy()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
 
 
 
