@@ -152,19 +152,21 @@ class Sqrubber(object):
             print("Your Sqrubber has no input")
             try:
                 sys.stdin.close()
-            except:
+            except SystemError:
                 pass
             raise SystemExit()
         elif isinstance(input, list):
+            self.infile = None
             self.doc = input
         # FIXME need to be able to test whether type is correct for this.
         elif os.path.isfile(input):
-            self.doc = "FILE"
+            self.infile = input
+            self.doc = None
         else:
-            print("Error")
+            print("General error...")
             try:
                 sys.stdin.close()
-            except:
+            except SystemError:
                 pass
             raise SystemExit()
 
@@ -216,6 +218,10 @@ class Sqrubber(object):
         :param path: the path to write to
         :return:
         """
+        if self.print:
+            for line in output:
+                print(line)
+            return
         with open(path, 'w') as f:
             f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + "\n")
             for line in output:
@@ -228,7 +234,10 @@ def usage():
     returns usage string
     :return:
     """
-    return 'sqrubber -h -p -i <inputfile> -o <outputfile>'
+    output = ['usage: sqrubber -[hpio] [-h help] [-p print-output-only] ']
+    output.append('[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]')
+    return ' '.join(output)
+
 
 def main(argv):
     """
@@ -236,27 +245,32 @@ def main(argv):
     :param argv:
     :return:
     """
-    if len(argv) == 0:
-        print(usage())
-        sys.exit(2)
+    print = None
+    outfile = None
     try:
-        opts, args = getopt.getopt(argv, 'hpi:o:', ['infile=', 'outfile='])
+        options, remainder = getopt.gnu_getopt(argv, 'hpi:o:', ['print', 'infile=', 'outfile='])
     except getopt.GetoptError:
-        print(usage())
+        print("Error", usage())
         sys.exit(2)
-    for opt, arg in argv:
+    for opt, arg in options:
         if opt == '-h':
-            print(usage())
+            print("Proper usage is ", usage())
             sys.exit()
-        elif opt in ['-i', 'infile=']:
+        elif opt in ['-i', '--infile']:
             sqrub = Sqrubber(arg)
-        elif opt in ['-o', 'outfile=']:
-            sqrub.out = arg
+        elif opt in ['-o', '--outfile=']:
+            outfile = arg
+        elif opt in ['-p', '--print']:
+            print = True
+    if outfile:
+        sqrub.outfile = outfile
+    if print:
+        sqrub.print = print
+    if sqrub.infile:
+        sqrub.doc = sqrub.read_dump(sqrub.infile)
     if not sqrub.validate():
         print("Input is not DDL, please check input....")
         exit()
-    sqrub.doc = sqrub.read_dump('../data/test.sql')
-    sqrub.validate()
     output = []
     for line in sqrub.doc:
         output.append(process_line(line))
