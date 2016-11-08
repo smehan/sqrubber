@@ -236,17 +236,20 @@ def main(argv):
     :param argv:
     :return:
     """
+    if len(argv) == 0:
+        print(usage())
+        sys.exit(2)
     try:
         opts, args = getopt.getopt(argv, 'hpi:o:', ['infile=', 'outfile='])
     except getopt.GetoptError:
-        print(usage)
+        print(usage())
         sys.exit(2)
-    sqrub = Sqrubber(["Drop Table employees"])
     for opt, arg in argv:
         if opt == '-h':
-            print(usage)
+            print(usage())
+            sys.exit()
         elif opt in ['-i', 'infile=']:
-            sqrub.doc = arg
+            sqrub = Sqrubber(arg)
         elif opt in ['-o', 'outfile=']:
             sqrub.out = arg
     if not sqrub.validate():
