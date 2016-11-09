@@ -223,7 +223,7 @@ class Sqrubber(object):
                 print(line)
             return
         with open(path, 'w') as f:
-            f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + "\n")
+            f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3*"\n")
             for line in output:
                 f.write(line + '\n')
             f.write("\n\n-- Sqrubber job finished")
@@ -258,14 +258,12 @@ def main(argv):
             sys.exit()
         elif opt in ['-i', '--infile']:
             sqrub = Sqrubber(arg)
-        elif opt in ['-o', '--outfile=']:
+        elif opt in ['-o', '--outfile']:
             outfile = arg
         elif opt in ['-p', '--print']:
             print = True
-    if outfile:
-        sqrub.outfile = outfile
-    if print:
-        sqrub.print = print
+    sqrub.outfile = outfile
+    sqrub.print = print
     if sqrub.infile:
         sqrub.doc = sqrub.read_dump(sqrub.infile)
     if not sqrub.validate():
@@ -274,7 +272,7 @@ def main(argv):
     output = []
     for line in sqrub.doc:
         output.append(process_line(line))
-    sqrub.write_dump('../data/test_output.sql', output)
+    sqrub.write_dump(sqrub.outfile, output)
     sqrub.destroy()
 
 
