@@ -234,8 +234,8 @@ def usage():
     returns usage string
     :return:
     """
-    output = ['usage: sqrubber -[hpio] [-h help] [-p print-output-only] ']
-    output.append('[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]')
+    output = ['usage: sqrubber -[hpio] [-h help] [-p print-output-only] ',
+              '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]']
     return ' '.join(output)
 
 
