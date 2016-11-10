@@ -239,9 +239,9 @@ def usage():
     returns usage string
     :return:
     """
-    output = ['usage: sqrubber -[hpio] [-h help] [-p print-output-only] ',
-              '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]']
-    return ' '.join(output)
+    output = 'usage: sqrubber -[hpio] [-h help] [-p print-output-only] ' \
+              '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]'
+    return output
 
 
 def main(argv):
@@ -259,7 +259,7 @@ def main(argv):
         sys.exit(2)
     for opt, arg in options:
         if opt == '-h':
-            print("Proper usage is ", usage())
+            print("Proper usage is " + usage())
             sys.exit()
         elif opt in ['-i', '--infile']:
             sqrub = Sqrubber(arg)
