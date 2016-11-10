@@ -170,8 +170,8 @@ class Sqrubber(object):
             print("General error...")
             try:
                 sys.stdin.close()
-            except SystemError:
-                pass
+            except Exception as e:
+                print(Exception)
             raise SystemExit()
         self.prefix = prefix
 
@@ -223,7 +223,7 @@ class Sqrubber(object):
         :param path: the path to write to
         :return:
         """
-        if self.print:
+        if self.print_only:
             for line in output:
                 print(line)
             return
@@ -250,7 +250,7 @@ def main(argv):
     :param argv:
     :return:
     """
-    print = None
+    print_only = None
     outfile = None
     try:
         options, remainder = getopt.gnu_getopt(argv, 'hpi:o:', ['print', 'infile=', 'outfile='])
@@ -266,9 +266,9 @@ def main(argv):
         elif opt in ['-o', '--outfile']:
             outfile = arg
         elif opt in ['-p', '--print']:
-            print = True
+            print_only = True
     sqrub.outfile = outfile
-    sqrub.print = print
+    sqrub.print_only = print_only
     if sqrub.infile:
         sqrub.doc = sqrub.read_dump(sqrub.infile)
     if not sqrub.validate():
