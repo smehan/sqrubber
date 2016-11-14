@@ -148,9 +148,11 @@ class Sqrubber(object):
     Sqrubber consumes an SQL dump and parses it, cleaning up and transforming the dump
     """
 
-    def __init__(self, input=None, prefix=None):
+    def __init__(self, input=None, prefix=None, schema=None):
         """Constructor for Sqrubber
-        :param input: input file
+        :param input: input file containing an SQL dump to be processed.
+        :param prefix: a SQL name compliant string to be prepended to all tablenames.
+        :param schema: a SQL schema name to use for all tables.
         """
         if not input:
             print("Your Sqrubber has no input")
@@ -174,6 +176,7 @@ class Sqrubber(object):
                 print(Exception)
             raise SystemExit()
         self.prefix = prefix
+        self.schema = schema
 
     def destroy(self):
         """Destructor for Sqrubber"""
