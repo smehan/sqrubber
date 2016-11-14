@@ -243,7 +243,8 @@ def usage():
     :return:
     """
     output = 'usage: sqrubber -[hpio] [-h help] [-p print-output-only] ' \
-              '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]'
+             '[--prefix=<prefix>] [--schema=schema_name]' \
+             '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]'
     return output
 
 
@@ -255,8 +256,10 @@ def main(argv):
     """
     print_only = None
     outfile = None
+    prefix = None
+    schema = None
     try:
-        options, remainder = getopt.gnu_getopt(argv, 'hpi:o:', ['print', 'infile=', 'outfile='])
+        options, remainder = getopt.gnu_getopt(argv, 'hpi:o:', ['print', 'infile=', 'outfile=', 'prefix=', 'schema='])
     except getopt.GetoptError:
         print("Error", usage())
         sys.exit(2)
@@ -270,8 +273,14 @@ def main(argv):
             outfile = arg
         elif opt in ['-p', '--print']:
             print_only = True
+        elif opt in ['--prefix']:
+            prefix = arg
+        elif opt in ['--schema']:
+            schema = arg
     sqrub.outfile = outfile
     sqrub.print_only = print_only
+    sqrub.prefix = prefix
+    sqrub.schema = schema
     if sqrub.infile:
         sqrub.doc = sqrub.read_dump(sqrub.infile)
     if not sqrub.validate():
