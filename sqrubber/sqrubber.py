@@ -136,7 +136,7 @@ def process_line(line, prefix=None, schema=None):
 
 def add_prefix(name, prefix):
     """
-    Adds a prefix to a column or table name.
+    Adds a prefix to a name (e.g., a table name).
     Works with "name1 name2" or with name1 and no quotes.
     :param name: the name to transform
     :param prefix: the prefix to prepend
@@ -147,6 +147,20 @@ def add_prefix(name, prefix):
         return name[:1] + prefix + '_' + name[1:]
     else:
         return '_'.join((prefix, name))
+
+def add_schema(name, schema):
+    """
+    Adds a schema to a name (e.g., a table name).
+    Works with "name1 name2", name1, name1_name2.
+    :param name: the name to transform
+    :param schema: the schema to prepend
+    :return: the combined schema.name
+    """
+    index = name.find('"')
+    if index == 0:
+        return name[:1] + schema + '.' + name[1:]
+    else:
+        return '.'.join((schema, name))
 
 
 class Sqrubber(object):
