@@ -17,19 +17,13 @@ import datetime
 # application libs
 
 
-def doubleit(x):
-    """
-
-    :param x:
-    :return:
-    """
-    return x * 2
-
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
 SPECIAL_CHARS = {'#': 'num', '/': '-'}
+
+VERSION = '0.1.0'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -214,13 +208,15 @@ class Sqrubber(object):
             raise SystemExit()
         self.prefix = prefix
         self.schema = schema
+        self.version = VERSION
 
     def __repr__(self):
         """
 
         :return:
         """
-        return '< Sqrubber: prefix={prefix}, schema={schema}>'.format(prefix=self.prefix, schema=self.schema)
+        return '< Sqrubber ver {version}: prefix={prefix}, ' \
+               'schema={schema}>'.format(version=self.version, prefix=self.prefix, schema=self.schema)
 
     def destroy(self):
         """Destructor for Sqrubber"""
@@ -282,6 +278,7 @@ class Sqrubber(object):
                 print(line)
             return
         with open(path, 'w') as f:
+            f.write("-- Sqrubber version {version}\n".format(version=self.version))
             f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3*"\n")
             for line in output:
                 f.write(line + '\n')
