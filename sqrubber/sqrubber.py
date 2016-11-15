@@ -197,10 +197,10 @@ class Sqrubber(object):
 
     def set_schema(self):
         """
-
+        Writes out a comment in output SQL to remind user of schema assumptions in dump.
         :return:
         """
-        return '\n-- Assumes existence of a schema {}\n'.format(self.schema)
+        return '\n\n--\n-- Sqrubber is assuming the existence of schema {}\n--\n\n'.format(self.schema)
 
     def validate(self):
         """
