@@ -96,7 +96,7 @@ def split_insert_line(line, prefix=None, schema=None):
            ')'
 
 
-def process_line(line, prefix=None, schema=None):
+def process_line(line, sqrub, prefix=None, schema=None):
     """
     Processes a line of DDL/DML with potential column and table names.
     Removes spaces and replaces them with underscores in a string.
@@ -105,17 +105,28 @@ def process_line(line, prefix=None, schema=None):
     Checks special case of [if exists] in DDL verbs.
     Assumes that DDL is present in the line. Use _token_in_line to check.
     :param line: the string to work on
+    :param sqrub: an instantiated Sqrubber that has state for attr: indent
+    :param prefix: prefix string to prepend to name
+    :param schema: schema name to prepend to name
     :return: transformed string
     """
+
+    indent = sqrub.indent
+    # test if end of line has end of block
+    if re.search(r'\);$', line):
+        sqrub.indent = False
     # remove noise lines from parse
     if re.search(r'^--', line) or line == '' or line == ');':
         return line
     # CASE: INSERT INTO
     if re.search(r'^INSERT INTO', line.upper()):
+        sqrub.indent = True
         return split_insert_line(line, prefix, schema)
     # CASE: VALUES or sub-line
-    if re.search(r'VALUES\s?\(E?\'', line.upper()) or re.search(r'\s?\(E?\'', line.upper()):
-        return line
+    if re.search(r'VALUES\s?\(E?\'', line.upper()):
+        return '    ' + line
+    if re.search(r'\s?\(E?\'', line.upper()):
+        return '          ' + line
     # special DDL line with no name
     for tok in DDL_OTHER_KEYWORDS:
         if re.search(r''.join(tok), line.lower()):
@@ -126,13 +137,17 @@ def process_line(line, prefix=None, schema=None):
                 tok = ' '.join((tok, 'if exists'))
             name, remain = split_line_with_token(line, tok)
             name = standardize_name(name, prefix, schema)
+            sqrub.indent = True
             return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
     # no token at start of line - column declaration
     for tok in DDL_TYPES:
         if tok in line.lower():
             name, remain = split_line_with_column_name(line)
             name = standardize_name(name, prefix=None, schema=None)
-    return ' '.join((name, remain.upper()))
+    if indent:
+        return ' '.join(('    ', name, remain.upper()))
+    else:
+        return ' '.join((name, remain.upper()))
 
 
 def add_prefix(name, prefix):
@@ -148,6 +163,7 @@ def add_prefix(name, prefix):
         return name[:1] + prefix + '_' + name[1:]
     else:
         return '_'.join((prefix, name))
+
 
 def add_schema(name, schema):
     """
@@ -328,8 +344,10 @@ def main(argv):
         output.append(sqrub.set_schema())
     if prefix:
         sqrub.prefix = prefix
-    for line in sqrub.doc:
-        output.append(process_line(line, sqrub.prefix, sqrub.schema))
+    for index, line in enumerate(sqrub.doc):
+        if index == 0:
+            sqrub.indent = False
+        output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
     sqrub.write_dump(sqrub.outfile, output)
     sqrub.destroy()
 
