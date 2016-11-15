@@ -29,26 +29,30 @@ def doubleit(x):
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
-SPECIAL_CASES = {'#': 'num', '/': '-'}
+SPECIAL_CHARS = {'#': 'num', '/': '-'}
 
 
-def standardize_name(name):
+def standardize_name(name, prefix=None):
     """
     replace spaces with underscores. remove special characters.
     :param name: the one or more column or table names to be processed, as a string
+    :param prefix: string to preprend to name
     :return: a new string with replaced chars
     """
-    for k in SPECIAL_CASES:
+    for k in SPECIAL_CHARS:
         if k in name:
-            name = name.replace(k, SPECIAL_CASES[k])
+            name = name.replace(k, SPECIAL_CHARS[k])
     name = name.replace(' ', '_')
+    if prefix:
+        name = add_prefix(name, prefix)
     return name.lower()
 
 
-def split_line_with_token(line, tok):
+def split_line_with_token(line, tok, schema=None):
     """
     tokenize the line into components for later use.
     :param line: incoming line with DDL/DML token in line
+    :param schema: global schema to add to table names
     :return: three strings: DDL/DML token, name, remainder of line
     """
     pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#/\'\"]+)(.*)')))
@@ -65,32 +69,33 @@ def split_line_with_column_name(line):
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\'\"]?([A-Za-z0-9 _#/]+)[\'\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\'\"]?([A-Za-z0-9 _\-#/]+)[\'\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
     return name, remain
 
 
-def split_insert_line(line):
+def split_insert_line(line, prefix=None, schema=None):
     """
     tokenize an INSERT INTO line into components and standardize all table and column names in the line.
     :param line: incoming string with INSERT INTO at beginning
+    :param prefix: string to prefix to name
     :return: fully standardized line
     """
     new_columns = []
     table_name, columns = line.split('(')
-    table_name = standardize_name(table_name.split('INTO ')[1])
+    table_name = standardize_name(table_name.split('INTO ')[1], prefix)
     columns = columns.replace(')', '')
     for index, col in enumerate(columns.split(',')):
-        new_columns.append(standardize_name(col))
+        new_columns.append(standardize_name(col, prefix=None))
     return ''.join(('INSERT INTO', ' ', table_name)) + \
            ' (' + \
            ', '.join((new_columns)) + \
            ')'
 
 
-def process_line(line):
+def process_line(line, prefix=None, schema=None):
     """
     Processes a line of DDL/DML with potential column and table names.
     Removes spaces and replaces them with underscores in a string.
@@ -104,10 +109,10 @@ def process_line(line):
     # remove noise lines from parse
     if re.search(r'^--', line) or line == '' or line == ');':
         return line
-    # INSERT INTO CASE
+    # CASE: INSERT INTO
     if re.search(r'^INSERT INTO', line.upper()):
-        return split_insert_line(line)
-    # VALUES or sub-line CASE
+        return split_insert_line(line, prefix, schema)
+    # CASE: VALUES or sub-line
     if re.search(r'VALUES\s?\(E?\'', line.upper()) or re.search(r'\s?\(E?\'', line.upper()):
         return line
     # special DDL line with no name
@@ -118,29 +123,30 @@ def process_line(line):
         if tok in line.lower():
             if ' '.join((tok, 'if exists')) in line.lower():
                 tok = ' '.join((tok, 'if exists'))
-            name, remain = split_line_with_token(line, tok)
-            name = standardize_name(name)
+            name, remain = split_line_with_token(line, tok, schema)
+            name = standardize_name(name, prefix)
             return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
     # no token at start of line - column declaration
     for tok in DDL_TYPES:
         if tok in line.lower():
             name, remain = split_line_with_column_name(line)
-            name = standardize_name(name)
+            name = standardize_name(name, prefix=None)
     return ' '.join((name, remain.upper()))
 
 
-def add_prefix(line, prefix):
+def add_prefix(name, prefix):
     """
-    Adds a prefix to a column or table name
+    Adds a prefix to a column or table name.
+    Works with "name1 name2" or with name1 and no quotes.
     :param name: the name to transform
     :param prefix: the prefix to prepend
     :return: the combined prefix_name
     """
-    for tok in DDL_KEYWORDS:
-        if tok in line.lower():
-            name, remain = split_line_with_token(line, tok)
-            name = '_'.join((prefix, name))
-            return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
+    index = name.find('"')
+    if index == 0:
+        return name[:1] + prefix + '_' + name[1:]
+    else:
+        return '_'.join((prefix, name))
 
 
 class Sqrubber(object):
@@ -178,9 +184,23 @@ class Sqrubber(object):
         self.prefix = prefix
         self.schema = schema
 
+    def __repr__(self):
+        """
+
+        :return:
+        """
+        return '< Sqrubber: prefix={prefix}, schema={schema}>'.format(prefix=self.prefix, schema=self.schema)
+
     def destroy(self):
         """Destructor for Sqrubber"""
-        pass
+        print("Sqrubber is finished....")
+
+    def set_schema(self):
+        """
+
+        :return:
+        """
+        return '\n-- Assumes existence of a schema {}\n'.format(self.schema)
 
     def validate(self):
         """
@@ -261,7 +281,10 @@ def main(argv):
     try:
         options, remainder = getopt.gnu_getopt(argv, 'hpi:o:', ['print', 'infile=', 'outfile=', 'prefix=', 'schema='])
     except getopt.GetoptError:
-        print("Error", usage())
+        print("Error. Proper usage is " + usage())
+        sys.exit(2)
+    if len(options) == 0:
+        print("Error. Proper usage is " + usage())
         sys.exit(2)
     for opt, arg in options:
         if opt == '-h':
@@ -279,16 +302,19 @@ def main(argv):
             schema = arg
     sqrub.outfile = outfile
     sqrub.print_only = print_only
-    sqrub.prefix = prefix
-    sqrub.schema = schema
     if sqrub.infile:
         sqrub.doc = sqrub.read_dump(sqrub.infile)
     if not sqrub.validate():
         print("Input is not DDL, please check input....")
         exit()
     output = []
+    if schema:
+        sqrub.schema = schema
+        output.append(sqrub.set_schema())
+    if prefix:
+        sqrub.prefix = prefix
     for line in sqrub.doc:
-        output.append(process_line(line))
+        output.append(process_line(line, sqrub.prefix, sqrub.schema))
     sqrub.write_dump(sqrub.outfile, output)
     sqrub.destroy()
 
