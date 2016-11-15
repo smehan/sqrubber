@@ -186,7 +186,7 @@ class Sqrubber(object):
         :param schema: a SQL schema name to use for all tables.
         """
         if not input:
-            print("Your Sqrubber has no input")
+            print("Warning! Your Sqrubber has no input")
             try:
                 sys.stdin.close()
             except SystemError:
