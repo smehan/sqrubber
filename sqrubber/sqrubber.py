@@ -48,6 +48,7 @@ def split_line_with_token(line, tok):
     """
     tokenize the line into components for later use.
     :param line: incoming line with DDL/DML token in line
+    :param tok: string DDL/DML token found in line
     :return: three strings: DDL/DML token, name, remainder of line
     """
     pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#/\'\"]+)(.*)')))
@@ -274,8 +275,11 @@ class Sqrubber(object):
         :return:
         """
         if self.print_only:
+            print("-- Sqrubber version {version}\n".format(version=self.version))
+            print("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3 * "\n")
             for line in output:
                 print(line)
+            print("\n\n-- Sqrubber job finished")
             return
         with open(path, 'w') as f:
             f.write("-- Sqrubber version {version}\n".format(version=self.version))
