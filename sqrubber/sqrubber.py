@@ -32,7 +32,7 @@ DDL_TYPES = ['integer', 'text', 'double precision']
 SPECIAL_CHARS = {'#': 'num', '/': '-'}
 
 
-def standardize_name(name, prefix=None):
+def standardize_name(name, prefix=None, schema=None):
     """
     replace spaces with underscores. remove special characters.
     :param name: the one or more column or table names to be processed, as a string
@@ -45,14 +45,15 @@ def standardize_name(name, prefix=None):
     name = name.replace(' ', '_')
     if prefix:
         name = add_prefix(name, prefix)
+    if schema:
+        name = add_schema(name, schema)
     return name.lower()
 
 
-def split_line_with_token(line, tok, schema=None):
+def split_line_with_token(line, tok):
     """
     tokenize the line into components for later use.
     :param line: incoming line with DDL/DML token in line
-    :param schema: global schema to add to table names
     :return: three strings: DDL/DML token, name, remainder of line
     """
     pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#/\'\"]+)(.*)')))
@@ -85,10 +86,10 @@ def split_insert_line(line, prefix=None, schema=None):
     """
     new_columns = []
     table_name, columns = line.split('(')
-    table_name = standardize_name(table_name.split('INTO ')[1], prefix)
+    table_name = standardize_name(table_name.split('INTO ')[1], prefix, schema)
     columns = columns.replace(')', '')
     for index, col in enumerate(columns.split(',')):
-        new_columns.append(standardize_name(col, prefix=None))
+        new_columns.append(standardize_name(col, prefix=None, schema=None))
     return ''.join(('INSERT INTO', ' ', table_name)) + \
            ' (' + \
            ', '.join((new_columns)) + \
@@ -123,14 +124,14 @@ def process_line(line, prefix=None, schema=None):
         if tok in line.lower():
             if ' '.join((tok, 'if exists')) in line.lower():
                 tok = ' '.join((tok, 'if exists'))
-            name, remain = split_line_with_token(line, tok, schema)
-            name = standardize_name(name, prefix)
+            name, remain = split_line_with_token(line, tok)
+            name = standardize_name(name, prefix, schema)
             return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
     # no token at start of line - column declaration
     for tok in DDL_TYPES:
         if tok in line.lower():
             name, remain = split_line_with_column_name(line)
-            name = standardize_name(name, prefix=None)
+            name = standardize_name(name, prefix=None, schema=None)
     return ' '.join((name, remain.upper()))
 
 
