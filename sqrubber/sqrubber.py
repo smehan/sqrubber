@@ -120,7 +120,7 @@ def process_line(line, sqrub, prefix=None, schema=None):
     # CASE: VALUES or sub-line
     if re.search(r'VALUES\s?\(E?\'', line.upper()):
         return '    ' + line
-    if re.search(r'\s?\(E?\'', line.upper()):
+    if re.search(r'\s?\((E?\'|NULL,)', line.upper()):
         return '          ' + line
     # special DDL line with no name
     for tok in DDL_OTHER_KEYWORDS:
@@ -348,6 +348,7 @@ def main(argv):
     for index, line in enumerate(sqrub.doc):
         if index == 0:
             sqrub.indent = False
+        print(line)
         output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
     sqrub.write_dump(sqrub.outfile, output)
     sqrub.destroy()
