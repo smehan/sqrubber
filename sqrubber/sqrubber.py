@@ -21,9 +21,9 @@ import datetime
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
-SPECIAL_CHARS = {'#': 'num', '/': '_or_', '-': '_', ' ': '_'}
+SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.4'
+VERSION = '0.2.5'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -65,7 +65,7 @@ def split_line_with_column_name(line):
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\'\"]?([A-Za-z0-9 _\-#/]+)[\'\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _\-\'#/]+)[\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
