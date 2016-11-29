@@ -21,9 +21,9 @@ import datetime
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
-SPECIAL_CHARS = {'#': 'num', '/': '_or_', ' ': '_'}
+SPECIAL_CHARS = {'#': 'num', '/': '_or_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 
 def standardize_name(name, prefix=None, schema=None):
