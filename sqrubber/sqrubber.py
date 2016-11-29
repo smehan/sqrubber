@@ -113,6 +113,9 @@ def process_line(line, sqrub, prefix=None, schema=None):
     # remove noise lines from parse
     if re.search(r'^--', line) or line == '' or line == ');':
         return line
+    # remove \' and replace with ''
+    if re.search(r'\'', line.upper()):
+        line = line.replace('\\\'', '\'\'')
     # CASE: INSERT INTO
     if re.search(r'^INSERT INTO', line.upper()):
         sqrub.indent = True
