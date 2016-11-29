@@ -23,7 +23,7 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
 SPECIAL_CHARS = {'#': 'num', '/': '-'}
 
-VERSION = '0.1.0'
+VERSION = '0.2.0'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -183,25 +183,25 @@ class Sqrubber(object):
     Sqrubber consumes an SQL dump and parses it, cleaning up and transforming the dump
     """
 
-    def __init__(self, input=None, prefix=None, schema=None):
+    def __init__(self, infile=None, prefix=None, schema=None):
         """Constructor for Sqrubber
-        :param input: input file containing an SQL dump to be processed.
+        :param infile: input file containing an SQL dump to be processed.
         :param prefix: a SQL name compliant string to be prepended to all tablenames.
         :param schema: a SQL schema name to use for all tables.
         """
-        if not input:
+        if not infile:
             print("Warning! Your Sqrubber has no input")
             try:
                 sys.stdin.close()
             except SystemError:
                 pass
             raise SystemExit()
-        elif isinstance(input, list):
+        elif isinstance(infile, list):
             self.infile = None
-            self.doc = input
+            self.doc = infile
         # FIXME need to be able to test whether type is correct for this.
-        elif os.path.isfile(input):
-            self.infile = input
+        elif os.path.isfile(infile):
+            self.infile = infile
             self.doc = None
         else:
             print("General error...")
