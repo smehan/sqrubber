@@ -21,14 +21,14 @@ import datetime
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
-SPECIAL_CHARS = {'#': 'num', '/': '-'}
+SPECIAL_CHARS = {'#': 'num', '/': '_or_', ' ': '_'}
 
-VERSION = '0.2.0'
+VERSION = '0.2.1'
 
 
 def standardize_name(name, prefix=None, schema=None):
     """
-    replace spaces with underscores. remove special characters.
+    replace special characters.
     :param name: the one or more column or table names to be processed, as a string
     :param prefix: string to preprend to name
     :return: a new string with replaced chars
@@ -36,7 +36,6 @@ def standardize_name(name, prefix=None, schema=None):
     for k in SPECIAL_CHARS:
         if k in name:
             name = name.replace(k, SPECIAL_CHARS[k])
-    name = name.replace(' ', '_')
     if prefix:
         name = add_prefix(name, prefix)
     if schema:
