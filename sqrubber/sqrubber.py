@@ -23,14 +23,14 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
 SPECIAL_CHARS = {'#': 'num', '/': '_or_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.2'
+VERSION = '0.2.3'
 
 
 def standardize_name(name, prefix=None, schema=None):
     """
     replace special characters.
     :param name: the one or more column or table names to be processed, as a string
-    :param prefix: string to preprend to name
+    :param prefix: string to prepend to name
     :return: a new string with replaced chars
     """
     for k in SPECIAL_CHARS:
