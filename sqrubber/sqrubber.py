@@ -41,6 +41,8 @@ def standardize_name(name, prefix=None, schema=None):
         name = add_prefix(name, prefix)
     if schema:
         name = add_schema(name, schema)
+    # remove enclosing quotes
+    name = name.replace('\"', '')
     return name.lower()
 
 
