@@ -21,7 +21,7 @@ import datetime
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
-SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', '-': '_', ' ': '_'}
+SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', ', ': '_', '-': '_', ' ': '_'}
 
 VERSION = '0.2.6'
 
@@ -67,7 +67,7 @@ def split_line_with_column_name(line):
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _\-\'#/]+)[\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,\-\'#/]+)[\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
@@ -85,6 +85,7 @@ def split_insert_line(line, prefix=None, schema=None):
     table_name, columns = line.split('(')
     table_name = standardize_name(table_name.split('INTO ')[1], prefix, schema)
     columns = columns.replace(')', '')
+    columns = columns.replace(', ', '_')
     for index, col in enumerate(columns.split(',')):
         new_columns.append(standardize_name(col, prefix=None, schema=None))
     return ''.join(('INSERT INTO', ' ', table_name)) + \
@@ -123,9 +124,9 @@ def process_line(line, sqrub, prefix=None, schema=None):
         sqrub.indent = True
         return split_insert_line(line, prefix, schema)
     # CASE: VALUES or sub-line
-    if re.search(r'VALUES\s?\(E?\'', line.upper()):
+    if re.search(r'VALUES\s?\((E?\'|NULL|\d+,)', line.upper()):
         return '    ' + line
-    if re.search(r'\s?\((E?\'|NULL,)', line.upper()):
+    if re.search(r'\s?\((E?\'|NULL|\d+,)', line.upper()):
         return '          ' + line
     # special DDL line with no name
     for tok in DDL_OTHER_KEYWORDS:
