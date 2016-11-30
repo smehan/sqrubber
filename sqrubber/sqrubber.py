@@ -23,7 +23,7 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision']
 SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.5'
+VERSION = '0.2.6'
 
 
 def standardize_name(name, prefix=None, schema=None):
