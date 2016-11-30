@@ -20,7 +20,7 @@ import datetime
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
-DDL_TYPES = ['integer', 'text', 'double precision']
+DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
 SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', ', ': '_', '-': '_', ' ': '_'}
 
 VERSION = '0.2.6'
