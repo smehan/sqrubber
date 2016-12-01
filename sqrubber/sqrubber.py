@@ -23,7 +23,7 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
 SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', ', ': '_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.7'
+VERSION = '0.2.8'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -273,6 +273,16 @@ class Sqrubber(object):
                 data.append(line.strip())
         return data
 
+    @staticmethod
+    def write_meta():
+        """
+        Want to write out an insert at the EOF as a stub
+        :return:
+        """
+        s = """\n\nINSERT INTO ingest.sources(name, source_db, description, version, ingest_by)
+                VALUES('NOM', 'SRC', 'DESCR', 1, 'shawn');\n\n"""
+        return s
+
     def write_dump(self, path, output):
         """
         Takes the content of sqrubber object and writes it to a file
@@ -281,6 +291,8 @@ class Sqrubber(object):
         :return:
         """
         if self.print_only:
+            # FIXME this should probably turn into a cmd line flag and even break out from a conf file....
+            print(self.write_meta())
             print("-- Sqrubber version {version}\n".format(version=self.version))
             print("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3 * "\n")
             for line in output:
