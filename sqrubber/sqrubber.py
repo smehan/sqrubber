@@ -37,6 +37,8 @@ def standardize_name(name, prefix=None, schema=None):
     for k in SPECIAL_CHARS:
         if k in name:
             name = name.replace(k, SPECIAL_CHARS[k])
+    if name[0] in ['1234567890']:
+        name = ''.join(['nbr_', name])
     if prefix:
         name = add_prefix(name, prefix)
     if schema:
@@ -210,7 +212,7 @@ class Sqrubber(object):
             print("General error...")
             try:
                 sys.stdin.close()
-            except Exception as e:
+            except ValueError as e:
                 print(Exception)
             raise SystemExit()
         self.prefix = prefix
