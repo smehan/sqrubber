@@ -37,7 +37,7 @@ def standardize_name(name, prefix=None, schema=None):
     for k in SPECIAL_CHARS:
         if k in name:
             name = name.replace(k, SPECIAL_CHARS[k])
-    if name[0] in ['1234567890']:
+    if name[0].isdigit():
         name = ''.join(['nbr_', name])
     if prefix:
         name = add_prefix(name, prefix)
