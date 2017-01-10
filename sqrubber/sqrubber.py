@@ -23,7 +23,7 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
 SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', ', ': '_', '-': '_', ' ': '_'}
 
-VERSION = '0.2.8'
+VERSION = '0.2.9'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -195,11 +195,11 @@ class Sqrubber(object):
         :param schema: a SQL schema name to use for all tables.
         """
         if not infile:
-            print("Warning! Your Sqrubber has no input")
+            print("Warning! Your Sqrubber has no input.")
             try:
                 sys.stdin.close()
-            except SystemError:
-                pass
+            except SystemError as e:
+                print(e)
             raise SystemExit()
         elif isinstance(infile, list):
             self.infile = None
@@ -213,7 +213,7 @@ class Sqrubber(object):
             try:
                 sys.stdin.close()
             except ValueError as e:
-                print(Exception)
+                print(e)
             raise SystemExit()
         self.prefix = prefix
         self.schema = schema
