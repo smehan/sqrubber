@@ -31,7 +31,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' & ', '_'),
                              (' ', '_')])  # end with the blanks
 
-VERSION = '0.2.14'
+VERSION = '0.2.16'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -77,7 +77,7 @@ def split_line_with_column_name(line):
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,\-\'#/]+)[\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%\-\'#/]+)[\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
