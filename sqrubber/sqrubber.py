@@ -11,6 +11,7 @@ import sys
 import getopt
 import re
 import datetime
+from collections import OrderedDict
 
 # 3rd party libs
 
@@ -21,9 +22,9 @@ import datetime
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
-SPECIAL_CHARS = {'#': 'num', '\'': '', '/': '_or_', ', ': '_', '-': '_', ' ': '_'}
+SPECIAL_CHARS = OrderedDict([('#', 'num'), ('\'', ''), ('/', '_or_'), (', ', '_'), ('-', '_'), (' ', '_')])
 
-VERSION = '0.2.9'
+VERSION = '0.2.10'
 
 
 def standardize_name(name, prefix=None, schema=None):
