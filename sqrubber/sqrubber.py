@@ -38,6 +38,7 @@ def standardize_name(name, prefix=None, schema=None):
     for k in SPECIAL_CHARS:
         if k in name:
             name = name.replace(k, SPECIAL_CHARS[k])
+    name = name.replace('\"', '')
     if name[0].isdigit():
         name = ''.join(['nbr_', name])
     if prefix:
@@ -45,7 +46,6 @@ def standardize_name(name, prefix=None, schema=None):
     if schema:
         name = add_schema(name, schema)
     # remove enclosing quotes
-    name = name.replace('\"', '')
     return name.lower()
 
 
