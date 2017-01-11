@@ -24,7 +24,7 @@ DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
 SPECIAL_CHARS = OrderedDict([('#', 'num'), ('\'', ''), ('/', '_or_'), (', ', '_'), ('-', '_'), (' ', '_')])
 
-VERSION = '0.2.10'
+VERSION = '0.2.11'
 
 
 def standardize_name(name, prefix=None, schema=None):
