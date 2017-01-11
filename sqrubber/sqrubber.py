@@ -31,7 +31,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' & ', '_'),
                              (' ', '_')])  # end with the blanks
 
-VERSION = '0.2.13'
+VERSION = '0.2.14'
 
 
 def standardize_name(name, prefix=None, schema=None):
