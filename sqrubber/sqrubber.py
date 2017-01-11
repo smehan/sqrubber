@@ -22,9 +22,15 @@ from collections import OrderedDict
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
-SPECIAL_CHARS = OrderedDict([('#', 'num'), ('\'', ''), ('/', '_or_'), (', ', '_'), ('-', '_'), (' ', '_')])
+SPECIAL_CHARS = OrderedDict([('#', 'num'),
+                             ('\'', ''),
+                             ('/', '_or_'),
+                             (', ', '_'),
+                             ('-', '_'),
+                             (' & ', '_'),
+                             (' ', '_')])  # end with the blanks
 
-VERSION = '0.2.11'
+VERSION = '0.2.12'
 
 
 def standardize_name(name, prefix=None, schema=None):
