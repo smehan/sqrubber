@@ -45,7 +45,7 @@ def standardize_name(name, prefix=None, schema=None):
         if k in name:
             name = name.replace(k, SPECIAL_CHARS[k])
     name = name.replace('\"', '')
-    if name[0].isdigit():
+    if name[0].isdigit():  # some names start with a num, e.g. '2013 date collected'
         name = ''.join(['nbr_', name])
     if prefix:
         name = add_prefix(name, prefix)
