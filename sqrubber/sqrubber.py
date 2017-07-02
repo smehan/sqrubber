@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2015-2017 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # sqrubber will perform various transformations and verifications on an SQL dump file
 ###########################################################
 #
@@ -32,7 +32,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' & ', '_'),
                              (' ', '_')])  # end with the blanks
 
-VERSION = '0.2.17'
+VERSION = '0.2.18'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -101,7 +101,7 @@ def split_insert_line(line, prefix=None, schema=None):
         new_columns.append(standardize_name(col, prefix=None, schema=None))
     return ''.join(('INSERT INTO', ' ', table_name)) + \
            ' (' + \
-           ', '.join((new_columns)) + \
+           ', '.join(*new_columns) + \
            ')'
 
 
@@ -227,6 +227,7 @@ class Sqrubber(object):
         self.prefix = prefix
         self.schema = schema
         self.version = VERSION
+        self.indent = None  # not certain what this was for
 
     def __repr__(self):
         """

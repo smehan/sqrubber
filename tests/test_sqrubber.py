@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2015-2017 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # unit test class for main program
 ###########################################################
 #
@@ -12,7 +12,6 @@ import pytest
 
 # application libs
 import sqrubber as sq
-
 
 # def test_doubleit():
 #     assert sq.doubleit(10) == 20
@@ -46,22 +45,26 @@ def test_file_check(sqrub):
     assert sqrub
 
 
-def test_standardize_name():
-    assert 'DROP TABLE employees;' == sq.process_line('DROP TABLE employees;')
-    assert 'CREATE TABLE employees (' == sq.process_line('CREATE TABLE employees (')
-    assert 'CREATE TABLE former_employees (' == sq.process_line('CREATE TABLE former employees (')
-    assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (')
-    assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;')
+def test_standardize_name(sqrub):
+    assert 'DROP TABLE employees;' == sq.process_line('DROP TABLE employees;', sqrub)
+    assert 'CREATE TABLE employees (' == sq.process_line('CREATE TABLE employees (', sqrub)
+    assert 'CREATE TABLE former_employees (' == sq.process_line('CREATE TABLE former employees (', sqrub)
+    assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (', sqrub)
+    assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
 
-def test_standardize_name_with_if_exists():
-    assert 'DROP TABLE if exists employees;' == sq.process_line('DROP TABLE if exists employees;')
-    assert 'CREATE TABLE if exists employees (' == sq.process_line('CREATE TABLE if exists employees (')
-    assert 'CREATE TABLE if exists former_employees (' == sq.process_line('CREATE TABLE if exists former employees (')
-    assert 'CREATE TABLE if exists yet_to_be_employees (' == sq.process_line('CREATE TABLE if exists YET to BE employees (')
-    assert 'DROP TABLE if exists yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;')
+
+def test_standardize_name_with_if_exists(sqrub):
+    assert 'DROP TABLE IF EXISTS employees;' == sq.process_line('DROP TABLE if exists employees;', sqrub)
+    assert 'CREATE TABLE IF EXISTS employees (' == sq.process_line('CREATE TABLE if exists employees (', sqrub)
+    assert 'CREATE TABLE IF EXISTS former_employees (' == sq.process_line('CREATE TABLE if exists former employees (', sqrub)
+    assert 'CREATE TABLE IF EXISTS yet_to_be_employees (' == sq.process_line('CREATE TABLE if exists YET to BE employees (', sqrub)
+    assert 'DROP TABLE IF EXISTS yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;', sqrub)
+
 
 def test_add_prefix():
-    assert 'CREATE TABLE test001_employees (' == sq.add_prefix('CREATE TABLE employees (', 'test001')
-    assert 'CREATE TABLE test001_former_employees (' == sq.add_prefix('CREATE TABLE former_employees (', 'test001')
-    assert 'CREATE TABLE test001_former_employees (' != sq.add_prefix('CREATE TABLE former employees (', 'test001')
+    assert 'test001_employees' == sq.add_prefix('employees', 'test001')
+    assert 'test001_employees' == sq.add_prefix('employees', 'test001')
+    assert 'test001_former_employees' == sq.add_prefix('former_employees', 'test001')
+    assert 'test001_former_employees' != sq.add_prefix('former employees', 'test001')
+    # TODO what about multiple word names?
 

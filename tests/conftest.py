@@ -1,4 +1,4 @@
-# Copyright (C) 2001-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2001-2017 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # 
 #
 #  -*- coding: utf-8 -*-
@@ -25,7 +25,7 @@ def sqrub_min_sql():
 
 @pytest.fixture()
 def sqrub_not_sql_input():
-    sqrub = sq.Sqrubber(not_sql_input)
+    sqrub = sq.Sqrubber(not_sql_input())
     return sqrub
 
 
@@ -43,12 +43,11 @@ def min_sql_input():
 
 @pytest.fixture()
 def not_sql_input():
-    with open('lorem.txt', 'r') as fh:
-        data = fh.readlines()
-    return data
+    path = os.path.join('tests', 'lorem.txt')
+    return path
 
 
 @pytest.fixture()
 def sql_file_input():
-    path = os.path.dirname('example.sql')
+    path = os.path.join('tests', 'example.sql')
     return path
