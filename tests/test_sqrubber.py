@@ -57,6 +57,8 @@ def test_standardize_names_with_indents(sqrub):
     sqrub.indent = True
     assert '     returned TEXT,' == sq.process_line('"Returned>" TEXT,', sqrub)
     assert '     survey_05 TEXT,' == sq.process_line('"Survey? 05" TEXT,', sqrub)
+    assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
+    assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
 
 
 def test_standardize_name_with_if_exists(sqrub):
@@ -81,12 +83,6 @@ def test_split_line_with_column_name():
 
 def test_strip_trailing_q_marks():
     assert '" text,' == sq.strip_trailing_q_marks('?" text,')
-
-
-def test_remove_question_marks(sqrub):
-    sqrub.indent = True
-    assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
-    assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
 
 
 def test_split_insert_line():

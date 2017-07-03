@@ -59,15 +59,6 @@ def standardize_name(name, prefix=None, schema=None):
     return name.lower()
 
 
-def strip_trailing_q_marks(s: str) -> str:
-    """
-    takes a str and removes problematic ? at end of str.
-    :param s:
-    :return:
-    """
-    return s.replace('?', '')
-
-
 def split_line_with_token(line, tok):
     """
     tokenize the line into components for later use.
