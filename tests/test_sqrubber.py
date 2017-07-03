@@ -55,7 +55,9 @@ def test_standardize_name(sqrub):
 
 def test_standardize_names_with_indents(sqrub):
     sqrub.indent = True
-    assert '     returned text,' == sq.process_line('"Returned>" TEXT,', sqrub)
+    assert '     returned TEXT,' == sq.process_line('"Returned>" TEXT,', sqrub)
+    assert '     survey_05 TEXT,' == sq.process_line('"Survey? 05" TEXT,', sqrub)
+
 
 def test_standardize_name_with_if_exists(sqrub):
     assert 'DROP TABLE IF EXISTS employees;' == sq.process_line('DROP TABLE if exists employees;', sqrub)
@@ -74,7 +76,7 @@ def test_add_prefix():
 
 
 def test_split_line_with_column_name():
-    assert ('jan09 survey', '?" text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
+    assert ('jan09 survey?', ' text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
 
 
 def test_strip_trailing_q_marks():

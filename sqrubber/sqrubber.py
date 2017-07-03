@@ -33,7 +33,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              ('>', ''),
                              (' ', '_')])  # end with the blanks
 
-VERSION = '0.2.18'
+VERSION = '0.2.19'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -88,7 +88,7 @@ def split_line_with_column_name(line):
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%\-\'#/>]+)[\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%\-\'#/?>]+)[\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
@@ -167,11 +167,12 @@ def process_line(line, sqrub, prefix=None, schema=None):
         if tok in line.lower():
             name, remain = split_line_with_column_name(line)
             name = standardize_name(name, prefix=None, schema=None)
-            remain = strip_trailing_q_marks(remain)
+            remain = remain.strip()
+            #remain = strip_trailing_q_marks(remain).replace(' "', '').strip()
     if indent:
-        return ' '.join(('    ', name, remain.upper())).replace(' "', '')
+        return ' '.join(('    ', name, remain.upper()))
     else:
-        return ' '.join((name, remain.upper())).replace(' "', '')
+        return ' '.join((name, remain.upper()))
 
 
 def add_prefix(name, prefix):
