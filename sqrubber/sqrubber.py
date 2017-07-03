@@ -28,7 +28,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (', ', '_'),
                              ('-', '_'),
                              ('%', 'percent'),
-                             ('?', 'question'),
+                             ('?', ''),
                              (' & ', '_'),
                              (' ', '_')])  # end with the blanks
 
@@ -99,6 +99,7 @@ def split_insert_line(line, prefix=None, schema=None):
     tokenize an INSERT INTO line into components and standardize all table and column names in the line.
     :param line: incoming string with INSERT INTO at beginning
     :param prefix: string to prefix to name
+    :param schema: schema name to prepend to name
     :return: fully standardized line
     """
     new_columns = []
@@ -110,7 +111,7 @@ def split_insert_line(line, prefix=None, schema=None):
         new_columns.append(standardize_name(col, prefix=None, schema=None))
     return ''.join(('INSERT INTO', ' ', table_name)) + \
            ' (' + \
-           ', '.join(*new_columns) + \
+           ', '.join(new_columns) + \
            ')'
 
 
@@ -169,7 +170,7 @@ def process_line(line, sqrub, prefix=None, schema=None):
     if indent:
         return ' '.join(('    ', name, remain.upper()))
     else:
-        return ' '.join((name, remain.upper())).replace(' "', '"')
+        return ' '.join((name, remain.upper())).replace(' "', '')
 
 
 def add_prefix(name, prefix):
