@@ -73,10 +73,14 @@ def test_split_line_with_column_name():
     assert ('jan09 survey', '?" text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
 
 
-def strip_trailing_q_marks():
+def test_strip_trailing_q_marks():
     assert '" text,' == sq.strip_trailing_q_marks('?" text,')
 
 
 def test_remove_question_marks(sqrub):
     assert 'jan09_survey\" TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
 
+
+def test_split_insert_line():
+    assert 'INSERT INTO test (name, store_num, category, item, size_or_quantity, price)' == sq.split_insert_line('INSERT INTO test("Name","Store #","Category","Item","Size/Quantity","Price")')
+    assert 'INSERT INTO test (store_num, jan09_survey)'  == sq.split_insert_line('INSERT INTO test("Store #","Jan09 Survey?")')
