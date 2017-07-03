@@ -168,7 +168,7 @@ def process_line(line, sqrub, prefix=None, schema=None):
             name = standardize_name(name, prefix=None, schema=None)
             remain = strip_trailing_q_marks(remain)
     if indent:
-        return ' '.join(('    ', name, remain.upper()))
+        return ' '.join(('    ', name, remain.upper())).replace(' "', '')
     else:
         return ' '.join((name, remain.upper())).replace(' "', '')
 

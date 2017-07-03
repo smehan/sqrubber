@@ -78,7 +78,9 @@ def test_strip_trailing_q_marks():
 
 
 def test_remove_question_marks(sqrub):
-    assert 'jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
+    sqrub.indent = True
+    assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
+    assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
 
 
 def test_split_insert_line():
