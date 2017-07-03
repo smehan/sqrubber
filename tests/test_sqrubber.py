@@ -53,6 +53,10 @@ def test_standardize_name(sqrub):
     assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
 
 
+def test_standardize_names_with_indents(sqrub):
+    sqrub.indent = True
+    assert '     returned text,' == sq.process_line('"Returned>" TEXT,', sqrub)
+
 def test_standardize_name_with_if_exists(sqrub):
     assert 'DROP TABLE IF EXISTS employees;' == sq.process_line('DROP TABLE if exists employees;', sqrub)
     assert 'CREATE TABLE IF EXISTS employees (' == sq.process_line('CREATE TABLE if exists employees (', sqrub)
