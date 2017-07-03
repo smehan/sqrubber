@@ -51,6 +51,7 @@ def test_standardize_name(sqrub):
     assert 'CREATE TABLE former_employees (' == sq.process_line('CREATE TABLE former employees (', sqrub)
     assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (', sqrub)
     assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
+    assert 'CREATE TABLE tmpclp277481 (' == sq.process_line('CREATE TABLE "~TMPCLP277481" (', sqrub)
 
 
 def test_standardize_names_with_indents(sqrub):
@@ -79,10 +80,6 @@ def test_add_prefix():
 
 def test_split_line_with_column_name():
     assert ('jan09 survey?', ' text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
-
-
-def test_strip_trailing_q_marks():
-    assert '" text,' == sq.strip_trailing_q_marks('?" text,')
 
 
 def test_split_insert_line():

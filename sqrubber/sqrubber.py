@@ -30,11 +30,12 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              ('%', 'percent'),
                              ('?', ''),
                              (' & ', '_'),
+                             ('~', ''),
                              ('>', ''),
                              (' ', '_')])  # end with the blanks
 INDENT = ' '*4
 
-VERSION = '0.2.19'
+VERSION = '0.2.20'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -66,7 +67,7 @@ def split_line_with_token(line, tok):
     :param tok: string DDL/DML token found in line
     :return: three strings: DDL/DML token, name, remainder of line
     """
-    pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#&/\'\"\-]+)(.*)')))
+    pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#&/~\'\"\-]+)(.*)')))
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
