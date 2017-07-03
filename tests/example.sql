@@ -39,3 +39,4 @@ CREATE TABLE YET to BE employees (
 DROP TABLE YET to BE employEeS;
 
 -- More comments
+

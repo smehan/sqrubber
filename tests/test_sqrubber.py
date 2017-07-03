@@ -68,3 +68,15 @@ def test_add_prefix():
     assert 'test001_former_employees' != sq.add_prefix('former employees', 'test001')
     # TODO what about multiple word names?
 
+
+def test_split_line_with_column_name():
+    assert ('jan09 survey', '?" text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
+
+
+def strip_trailing_q_marks():
+    assert '" text,' == sq.strip_trailing_q_marks('?" text,')
+
+
+def test_remove_question_marks(sqrub):
+    assert 'jan09_survey\" TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
+
