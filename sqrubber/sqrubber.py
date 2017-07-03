@@ -32,6 +32,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' & ', '_'),
                              ('>', ''),
                              (' ', '_')])  # end with the blanks
+INDENT = ' '*4
 
 VERSION = '0.2.19'
 
@@ -168,9 +169,8 @@ def process_line(line, sqrub, prefix=None, schema=None):
             name, remain = split_line_with_column_name(line)
             name = standardize_name(name, prefix=None, schema=None)
             remain = remain.strip()
-            #remain = strip_trailing_q_marks(remain).replace(' "', '').strip()
     if indent:
-        return ' '.join(('    ', name, remain.upper()))
+        return ' '.join((INDENT, name, remain.upper()))
     else:
         return ' '.join((name, remain.upper()))
 
