@@ -21,7 +21,7 @@ from collections import OrderedDict
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
 DDL_OTHER_KEYWORDS = ['set names']
-DDL_TYPES = ['integer', 'text', 'double precision', 'timestamp']
+DDL_TYPES = ['boolean', 'double precision', 'integer', 'text',  'timestamp']
 SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              ('\'', ''),
                              ('/', '_or_'),
@@ -35,7 +35,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' ', '_')])  # end with the blanks
 INDENT = ' '*4
 
-VERSION = '0.2.20'
+VERSION = '0.2.21'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -147,6 +147,9 @@ def process_line(line, sqrub, prefix=None, schema=None):
     for tok in DDL_OTHER_KEYWORDS:
         if re.search(r''.join(tok), line.lower()):
             return line
+    # set up initial values of name and remain for existence test later
+    name = None
+    remain = None
     for tok in DDL_KEYWORDS:
         if tok in line.lower():
             if ' '.join((tok, 'if exists')) in line.lower():
@@ -161,6 +164,8 @@ def process_line(line, sqrub, prefix=None, schema=None):
             name, remain = split_line_with_column_name(line)
             name = standardize_name(name, prefix=None, schema=None)
             remain = remain.strip()
+    if not name or not remain:
+        return
     if indent:
         return ' '.join((INDENT, name, remain.upper()))
     else:

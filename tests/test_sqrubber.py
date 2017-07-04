@@ -60,6 +60,15 @@ def test_standardize_names_with_indents(sqrub):
     assert '     survey_05 TEXT,' == sq.process_line('"Survey? 05" TEXT,', sqrub)
     assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
     assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
+    assert '     deadline TEXT,' == sq.process_line('"Deadline?" TEXT,', sqrub)
+
+
+def test_ddl_types_in_line(sqrub):
+    assert 'returned TEXT,' == sq.process_line('"Returned" TEXT,', sqrub)
+    assert 'returned BOOLEAN,' == sq.process_line('"Returned" BOOLEAN,', sqrub)
+    assert 'amount INTEGER,' == sq.process_line('"amount" INTEGER,', sqrub)
+    assert 'returned DOUBLE PRECISION,' == sq.process_line('"Returned" double precision,', sqrub)
+    assert not sq.process_line('"Dud" VARCHAR', sqrub)
 
 
 def test_standardize_name_with_if_exists(sqrub):
@@ -80,6 +89,8 @@ def test_add_prefix():
 
 def test_split_line_with_column_name():
     assert ('jan09 survey?', ' text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
+    assert ('deadline?', ' text,') == sq.split_line_with_column_name('"Deadline?" TEXT,')
+    assert ('package sent?', ' boolean,') == sq.split_line_with_column_name('"Package Sent?" BOOLEAN,')
 
 
 def test_split_insert_line():
