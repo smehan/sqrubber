@@ -43,6 +43,7 @@ def test_standardize_name(sqrub):
     assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (', sqrub)
     assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
     assert 'CREATE TABLE tmpclp277481 (' == sq.process_line('CREATE TABLE "~TMPCLP277481" (', sqrub)
+    assert 'CREATE TABLE r_and_i_trend_data_albany (' == sq.process_line('CREATE TABLE "R&I Trend Data Albany" (', sqrub)
 
 
 def test_standardize_names_with_indents(sqrub):
