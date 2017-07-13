@@ -13,15 +13,6 @@ import pytest
 # application libs
 import sqrubber as sq
 
-# def test_doubleit():
-#     assert sq.doubleit(10) == 20
-#     print("number")
-#
-#
-# def test_doublieit_type():
-#     with pytest.raises(TypeError):
-#         sq.doubleit('string')
-
 
 @pytest.mark.skip('Sqrubber object failing on tests')
 def test_input_exists(sqrub):
@@ -61,6 +52,8 @@ def test_standardize_names_with_indents(sqrub):
     assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
     assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
     assert '     deadline TEXT,' == sq.process_line('"Deadline?" TEXT,', sqrub)
+    assert '     money_change DOUBLE PRECISION,' == sq.process_line('"$ Change" DOUBLE PRECISION,', sqrub)
+    assert '     percent_change DOUBLE PRECISION' == sq.process_line('"% Change" DOUBLE PRECISION', sqrub)
 
 
 def test_ddl_types_in_line(sqrub):

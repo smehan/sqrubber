@@ -27,6 +27,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              ('/', '_or_'),
                              (', ', '_'),
                              ('-', '_'),
+                             ('$', 'money'),
                              ('%', 'percent'),
                              ('?', ''),
                              (' & ', '_'),
@@ -35,12 +36,12 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' ', '_')])  # end with the blanks
 INDENT = ' '*4
 
-VERSION = '0.2.21'
+VERSION = '0.2.22'
 
 
 def standardize_name(name, prefix=None, schema=None):
     """
-    replace special characters.
+    Replace special characters in column or table names.
     :param name: the one or more column or table names to be processed, as a string
     :param prefix: string to prepend to name
     :param schema: string representing schema to use for prepend to name
@@ -76,12 +77,12 @@ def split_line_with_token(line, tok):
 
 def split_line_with_column_name(line):
     """
-    tokenize the into components for later use.
+    tokenize the line into components for later use.
     :param line: incoming string with no DDL/DML token at beginning but
     rather a column declaration, e.g. "COLUMN NAME" TEXT,
     :return: two strings: name, remainder of line
     """
-    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%\-\'#/?>]+)[\"]?(.*,?)')
+    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%$\-\'#/?>]+)[\"]?(.*,?)')
     match = re.search(pattern, line.lower())
     name = match.group(1).strip()
     remain = match.group(2)
