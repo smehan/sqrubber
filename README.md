@@ -2,6 +2,8 @@
 Collection of python utilities for verifying and altering SQL dump files, including adding prefixes to table namespaces, changing table and column namespaces.
 Currently expects python 3 (tested in 3.6.2)
 
+[![Build Status](https://travis-ci.org/smehan/sqrubber.svg?branch=master)](https://travis-ci.org/smehan/sqrubber)
+
 ### Usage
 
 sqrubber -[hpio] [-h help] [-p print-output-only] [--prefix=<prefix>] [--schema=schema_name][-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]
