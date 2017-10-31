@@ -37,7 +37,7 @@ SPECIAL_CHARS = OrderedDict([('#', 'num'),
                              (' ', '_')])  # end with the blanks
 INDENT = ' '*4
 
-VERSION = '0.2.23'
+VERSION = '0.3.0'
 
 
 def standardize_name(name, prefix=None, schema=None):
@@ -337,7 +337,7 @@ def usage():
     :return:
     """
     output = 'usage: sqrubber -[hpio] [-h help] [-p print-output-only] ' \
-             '[--prefix=<prefix>] [--schema=schema_name]' \
+             '[--prefix=<prefix>] [--schema=<schema_name>]' \
              '[-i/--infile=<inputfile>] [-o/--outfile=<outputfile>]'
     return output
 
