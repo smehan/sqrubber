@@ -254,6 +254,7 @@ class Collisions(object):
         return '< Collisions ver {version}:'\
                 .format(version=self.version)
 
+    @staticmethod
     def destroy(self):
         """Destructor for Collisions"""
         print("Collisions is finished....")
