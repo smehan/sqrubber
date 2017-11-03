@@ -205,13 +205,18 @@ def add_schema(name, schema):
         return '.'.join((schema, name))
 
 
+def process_dupes(line: str, body, idx: int):
+    if body.names[line.lower()] > 1:
+        print(f"Duplicate table name at line: {idx} with {line.lower()}")
+    return
+
+
 def find_dups(line: str, body, idx: int):
     for word in DDL_KEYWORDS:
         if word in line.lower():
             body.names.update([line.lower()])
-    if body.names[line.lower()] > 1:
-        print(f"Duplicate table name at line: {idx} with {line.lower()}")
-    return body
+    process_dupes(line, body, idx)
+    return
 
 
 class Collisions(object):
