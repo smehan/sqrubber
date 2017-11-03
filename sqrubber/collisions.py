@@ -205,6 +205,8 @@ def insert_suffix(old_string, suffix, table_type='drop'):
         pos = -1
     elif table_type == 'create':
         pos = -2
+    elif table_type == 'insert':
+        pos = old_string.index(' (')
     return old_string[:pos] + '_' + suffix + old_string[pos:]
 
 
@@ -215,6 +217,9 @@ def process_drop_table(suffix: str, body, idx: int):
 
 def process_create_table(suffix: str, body, idx: int):
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
+    while 'insert into' not in body.doc[idx].lower():
+        idx += 1
+    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
     return body.doc[idx]
 
 
