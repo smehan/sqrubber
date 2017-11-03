@@ -109,6 +109,8 @@ class Collisions(object):
             except ValueError as e:
                 print(e)
             raise SystemExit()
+        self.print_only = None
+        self.outfile = None
         self.version = VERSION
         self.names = Counter()
 
@@ -124,13 +126,6 @@ class Collisions(object):
     def destroy():
         """Destructor for Collisions"""
         print("Collisions is finished....")
-
-    def set_schema(self):
-        """
-        Writes out a comment in output SQL to remind user of schema assumptions in dump.
-        :return:
-        """
-        return '\n\n--\n-- Sqrubber is assuming the existence of schema {}\n--\n\n'.format(self.schema)
 
     def validate(self):
         """
@@ -169,26 +164,25 @@ class Collisions(object):
                 data.append(line.strip())
         return data
 
-    def write_dump(self, path):
+    def write_dump(self):
         """
         Takes the content of Collisions object and writes it to a file
-        :param path: the path to write to
         :return:
         """
-        self.print_only = True
+        #self.print_only = True
         if self.print_only:
             # FIXME this should probably turn into a cmd line flag and even break out from a conf file....
-            print("-- Collsions version {version}\n".format(version=self.version))
+            print("-- Collisions version {version}\n".format(version=self.version))
             print("-- Collisions output generated on " + str(datetime.datetime.now()) + 3 * "\n")
             for line in self.doc:
                 print(line)
             return
-        # with open(path, 'w') as f:
-        #     f.write("-- Sqrubber version {version}\n".format(version=self.version))
-        #     f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3*"\n")
-        #     for line in output:
-        #         f.write(line + '\n')
-        #     f.write("\n\n-- Sqrubber job finished")
+        path = self.outfile
+        with open(path, 'w') as f:
+            f.write("-- Collisions version {version}\n".format(version=self.version))
+            f.write("-- Collisions output generated on " + str(datetime.datetime.now()) + 3 * "\n")
+            for line in self.doc:
+                f.write(line + '\n')
 
 
 def usage():
@@ -232,8 +226,9 @@ def main(argv):
         elif opt in ['--schema']:
             schema = arg
     if outfile is None:
-        outfile = collisions.infile + '.cleaned'
-    collisions.outfile = outfile
+        collisions.outfile = collisions.infile + '.cleaned'
+    else:
+        collisions.outfile = outfile
     collisions.print_only = print_only
     if collisions.infile:
         collisions.doc = collisions.read_dump(collisions.infile)
@@ -246,7 +241,7 @@ def main(argv):
     # Then process those found
     for idx, line in enumerate(collisions.doc):
         process_dupes(line, collisions, idx)
-    collisions.write_dump(None)
+    collisions.write_dump()
     collisions.destroy()
 
 
