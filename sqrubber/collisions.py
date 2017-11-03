@@ -215,8 +215,20 @@ def get_sql_dump_name(body, idx: int):
         return None
 
 
+def process_drop_table(suffix: str, body, idx: int):
+    ...
+
+
+def process_create_table(suffix: str, body, idx: int):
+    ...
+
+
 def process_table_name(line: str, body, idx: int):
     table_suffix = get_sql_dump_name(body, idx)
+    if 'drop table' in line:
+        process_drop_table(table_suffix, body, idx)
+    elif 'create table' in line:
+        process_create_table(table_suffix, body, idx)
     return table_suffix
 
 
