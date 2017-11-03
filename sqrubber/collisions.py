@@ -26,176 +26,13 @@ INDENT = ' '*4
 VERSION = '0.3.0'
 
 
-def standardize_name(name, prefix=None, schema=None):
-    """
-    Replace special characters in column or table names.
-    :param name: the one or more column or table names to be processed, as a string
-    :param prefix: string to prepend to name
-    :param schema: string representing schema to use for prepend to name
-    :return: a new string with replaced chars
-    """
-    for k in SPECIAL_CHARS:
-        if k in name:
-            name = name.replace(k, SPECIAL_CHARS[k])
-    name = name.replace('\"', '')
-    if name[0].isdigit():  # some names start with a num, e.g. '2013 date collected'
-        name = ''.join(['nbr_', name])
-    if prefix:
-        name = add_prefix(name, prefix)
-    if schema:
-        name = add_schema(name, schema)
-    # remove enclosing quotes
-    return name.lower()
-
-
-def split_line_with_token(line, tok):
-    """
-    tokenize the line into components for later use.
-    :param line: incoming line with DDL/DML token in line
-    :param tok: string DDL/DML token found in line
-    :return: three strings: DDL/DML token, name, remainder of line
-    """
-    pattern = re.compile(r''.join(('^\s?', tok, '\s+([A-Za-z0-9 _#&/~\'\"\-]+)(.*)')))
-    match = re.search(pattern, line.lower())
-    name = match.group(1).strip()
-    remain = match.group(2)
-    return name, remain
-
-
-def split_line_with_column_name(line):
-    """
-    tokenize the line into components for later use.
-    :param line: incoming string with no DDL/DML token at beginning but
-    rather a column declaration, e.g. "COLUMN NAME" TEXT,
-    :return: two strings: name, remainder of line
-    """
-    pattern = re.compile(r'\s?[\"]?([A-Za-z0-9 _,%$&\-\'#/?>]+)[\"]?(.*,?)')
-    match = re.search(pattern, line.lower())
-    name = match.group(1).strip()
-    remain = match.group(2)
-    return name, remain
-
-
-def split_insert_line(line, prefix=None, schema=None):
-    """
-    tokenize an INSERT INTO line into components and standardize all table and column names in the line.
-    :param line: incoming string with INSERT INTO at beginning
-    :param prefix: string to prefix to name
-    :param schema: schema name to prepend to name
-    :return: fully standardized line
-    """
-    new_columns = []
-    table_name, columns = line.split('(')
-    table_name = standardize_name(table_name.split('INTO ')[1], prefix, schema)
-    columns = columns.replace(')', '')
-    columns = columns.replace(', ', '_')
-    for index, col in enumerate(columns.split(',')):
-        new_columns.append(standardize_name(col, prefix=None, schema=None))
-    return ''.join(('INSERT INTO', ' ', table_name)) + \
-           ' (' + \
-           ', '.join(new_columns) + \
-           ')'
-
-
-def process_line(line, sqrub, prefix=None, schema=None):
-    """
-    Processes a line of DDL/DML with potential column and table names.
-    Removes spaces and replaces them with underscores in a string.
-    Lower cases all elements of names.
-    Upper cases all elements of DDL.
-    Checks special case of [if exists] in DDL verbs.
-    Assumes that DDL is present in the line. Use _token_in_line to check.
-    :param line: the string to work on
-    :param sqrub: an instantiated Sqrubber that has state for attr: indent
-    :param prefix: prefix string to prepend to name
-    :param schema: schema name to prepend to name
-    :return: transformed string
-    """
-
-    indent = sqrub.indent
-    # test if end of line has end of block
-    if re.search(r'\);$', line):
-        sqrub.indent = False
-    # remove noise lines from parse
-    if re.search(r'^--', line) or line == '' or line == ');':
-        return line
-    # remove \' and replace with ''
-    if re.search(r'\'', line.upper()):
-        line = line.replace('\\\'', '\'\'')
-    # CASE: INSERT INTO
-    if re.search(r'^INSERT INTO', line.upper()):
-        sqrub.indent = True
-        return split_insert_line(line, prefix, schema)
-    # CASE: VALUES or sub-line
-    if re.search(r'VALUES\s?\((E?\'|NULL|\d+,)', line.upper()):
-        return '    ' + line
-    if re.search(r'\s?\((E?\'|NULL|\d+,)', line.upper()):
-        return '          ' + line
-    # special DDL line with no name
-    for tok in DDL_OTHER_KEYWORDS:
-        if re.search(r''.join(tok), line.lower()):
-            return line
-    # set up initial values of name and remain for existence test later
-    name = None
-    remain = None
-    for tok in DDL_KEYWORDS:
-        if tok in line.lower():
-            if ' '.join((tok, 'if exists')) in line.lower():
-                tok = ' '.join((tok, 'if exists'))
-            name, remain = split_line_with_token(line, tok)
-            name = standardize_name(name, prefix, schema)
-            sqrub.indent = True
-            return ''.join((tok.upper(), ' ', name, ' ', remain)).replace(' ;', ';')
-    # no token at start of line - column declaration
-    for tok in DDL_TYPES:
-        if tok in line.lower():
-            name, remain = split_line_with_column_name(line)
-            name = standardize_name(name, prefix=None, schema=None)
-            remain = remain.strip()
-    if not name or not remain:
-        return
-    if indent:
-        return ' '.join((INDENT, name, remain.upper()))
-    else:
-        return ' '.join((name, remain.upper()))
-
-
-def add_prefix(name, prefix):
-    """
-    Adds a prefix to a name (e.g., a table name).
-    Works with "name1 name2" or with name1 and no quotes.
-    :param name: the name to transform
-    :param prefix: the prefix to prepend
-    :return: the combined prefix_name
-    """
-    index = name.find('"')
-    if index == 0:
-        return name[:1] + prefix + '_' + name[1:]
-    else:
-        return '_'.join((prefix, name))
-
-
-def add_schema(name, schema):
-    """
-    Adds a schema to a name (e.g., a table name).
-    Works with "name1 name2", name1, name1_name2.
-    :param name: the name to transform
-    :param schema: the schema to prepend
-    :return: the combined schema.name
-    """
-    index = name.find('"')
-    if index == 0:
-        return name[:1] + schema + '.' + name[1:]
-    else:
-        return '.'.join((schema, name))
-
-
 def get_sql_dump_name(body, idx: int):
+    """ Extracts sql dump file name from sqrubber generated comment block"""
     SQL_DUMP_LINE = '-- SQL Dump of '.lower()
     while SQL_DUMP_LINE not in body.doc[idx].lower():
         idx -= 1
     try:
-        return body.doc[idx].lower().rsplit(' ', 1)[1].split('.')[0]
+        return body.doc[idx].lower().rsplit(' ', 1)[1].split('.')[0].lower()
     except IndexError:
         return None
 
@@ -220,22 +57,19 @@ def process_create_table(suffix: str, body, idx: int):
     while 'insert into' not in body.doc[idx].lower():
         idx += 1
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
-    return body.doc[idx]
 
 
 def process_table_name(line: str, body, idx: int):
     table_suffix = get_sql_dump_name(body, idx)
     if 'drop table' in line:
-        print(process_drop_table(table_suffix, body, idx))
+        process_drop_table(table_suffix, body, idx)
     elif 'create table' in line:
-        print(process_create_table(table_suffix, body, idx))
-    return table_suffix
+        process_create_table(table_suffix, body, idx)
 
 
 def process_dupes(line: str, body, idx: int):
     if body.names[line.lower()] > 1:
-        print(f"Duplicate table name at line: {idx} with {line.lower()}")
-        print(process_table_name(line.lower(), body, idx))
+        process_table_name(line.lower(), body, idx)
     return
 
 
@@ -338,38 +172,26 @@ class Collisions(object):
                 data.append(line.strip())
         return data
 
-    @staticmethod
-    def write_meta():
+    def write_dump(self, path):
         """
-        Want to write out an insert at the EOF as a stub
-        :return:
-        """
-        s = """\n\nINSERT INTO ingest.sources(name, source_db, description, version, ingest_by)
-                VALUES('NOM', 'SRC', 'DESCR', 1, 'shawn');\n\n"""
-        return s
-
-    def write_dump(self, path, output):
-        """
-        Takes the content of sqrubber object and writes it to a file
-        :param output: the output to write out
+        Takes the content of Collisions object and writes it to a file
         :param path: the path to write to
         :return:
         """
+        self.print_only = True
         if self.print_only:
             # FIXME this should probably turn into a cmd line flag and even break out from a conf file....
-            print(self.write_meta())
-            print("-- Sqrubber version {version}\n".format(version=self.version))
-            print("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3 * "\n")
-            for line in output:
+            print("-- Collsions version {version}\n".format(version=self.version))
+            print("-- Collisions output generated on " + str(datetime.datetime.now()) + 3 * "\n")
+            for line in self.doc:
                 print(line)
-            print("\n\n-- Sqrubber job finished")
             return
-        with open(path, 'w') as f:
-            f.write("-- Sqrubber version {version}\n".format(version=self.version))
-            f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3*"\n")
-            for line in output:
-                f.write(line + '\n')
-            f.write("\n\n-- Sqrubber job finished")
+        # with open(path, 'w') as f:
+        #     f.write("-- Sqrubber version {version}\n".format(version=self.version))
+        #     f.write("-- Sqrubber output generated on " + str(datetime.datetime.now()) + 3*"\n")
+        #     for line in output:
+        #         f.write(line + '\n')
+        #     f.write("\n\n-- Sqrubber job finished")
 
 
 def usage():
@@ -432,7 +254,7 @@ def main(argv):
         #     sqrub.indent = False
         find_dupes(line, collisions, idx)
         # output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
-    # sqrub.write_dump(sqrub.outfile, output)
+    collisions.write_dump(None)
     collisions.destroy()
 
 
