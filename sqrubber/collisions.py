@@ -21,21 +21,6 @@ from collections import OrderedDict, Counter
 
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'drop table']
-DDL_OTHER_KEYWORDS = ['set names']
-DDL_TYPES = ['boolean', 'double precision', 'integer', 'text',  'timestamp']
-SPECIAL_CHARS = OrderedDict([('#', 'num'),
-                             ('\'', ''),
-                             ('/', '_or_'),
-                             (', ', '_'),
-                             ('-', '_'),
-                             ('$', 'money'),
-                             ('%', 'percent'),
-                             ('&', ' and '),
-                             ('?', ''),
-                             (' & ', '_'),
-                             ('~', ''),
-                             ('>', ''),
-                             (' ', '_')])  # end with the blanks
 INDENT = ' '*4
 
 VERSION = '0.3.0'
