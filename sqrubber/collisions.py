@@ -49,7 +49,6 @@ def insert_suffix(old_string, suffix, table_type='drop'):
 
 def process_drop_table(suffix: str, body, idx: int):
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'drop')
-    return body.doc[idx]
 
 
 def process_create_table(suffix: str, body, idx: int):
@@ -77,8 +76,6 @@ def find_dupes(line: str, body, idx: int):
     for word in DDL_KEYWORDS:
         if word in line.lower():
             body.names.update([line.lower()])
-    process_dupes(line, body, idx)
-    return
 
 
 class Collisions(object):
@@ -243,17 +240,12 @@ def main(argv):
     if not collisions.validate():
         print("Input is not DDL, please check input....")
         exit()
-    output = []
-    # if schema:
-    #     sqrub.schema = schema
-    #     output.append(sqrub.set_schema())
-    # if prefix:
-    #     sqrub.prefix = prefix
+    # First find the duplicates
     for idx, line in enumerate(collisions.doc):
-        # if idx == 0:
-        #     sqrub.indent = False
         find_dupes(line, collisions, idx)
-        # output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
+    # Then process those found
+    for idx, line in enumerate(collisions.doc):
+        process_dupes(line, collisions, idx)
     collisions.write_dump(None)
     collisions.destroy()
 
