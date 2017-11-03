@@ -215,27 +215,37 @@ def get_sql_dump_name(body, idx: int):
         return None
 
 
+def insert_suffix(old_string, suffix, table_type='drop'):
+    if table_type == 'drop':
+        pos = -1
+    elif table_type == 'create':
+        pos = -2
+    return old_string[:pos] + '_' + suffix + old_string[pos:]
+
+
 def process_drop_table(suffix: str, body, idx: int):
-    ...
+    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'drop')
+    return body.doc[idx]
 
 
 def process_create_table(suffix: str, body, idx: int):
-    ...
+    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
+    return body.doc[idx]
 
 
 def process_table_name(line: str, body, idx: int):
     table_suffix = get_sql_dump_name(body, idx)
     if 'drop table' in line:
-        process_drop_table(table_suffix, body, idx)
+        print(process_drop_table(table_suffix, body, idx))
     elif 'create table' in line:
-        process_create_table(table_suffix, body, idx)
+        print(process_create_table(table_suffix, body, idx))
     return table_suffix
 
 
 def process_dupes(line: str, body, idx: int):
     if body.names[line.lower()] > 1:
         print(f"Duplicate table name at line: {idx} with {line.lower()}")
-        print(process_table_name(line, body, idx))
+        print(process_table_name(line.lower(), body, idx))
     return
 
 
