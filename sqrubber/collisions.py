@@ -205,9 +205,25 @@ def add_schema(name, schema):
         return '.'.join((schema, name))
 
 
+def get_sql_dump_name(body, idx: int):
+    SQL_DUMP_LINE = '-- SQL Dump of '.lower()
+    while SQL_DUMP_LINE not in body.doc[idx].lower():
+        idx -= 1
+    try:
+        return body.doc[idx].lower().rsplit(' ', 1)[1].split('.')[0]
+    except IndexError:
+        return None
+
+
+def process_table_name(line: str, body, idx: int):
+    table_suffix = get_sql_dump_name(body, idx)
+    return table_suffix
+
+
 def process_dupes(line: str, body, idx: int):
     if body.names[line.lower()] > 1:
         print(f"Duplicate table name at line: {idx} with {line.lower()}")
+        print(process_table_name(line, body, idx))
     return
 
 
