@@ -205,11 +205,13 @@ def add_schema(name, schema):
         return '.'.join((schema, name))
 
 
-def find_dups(line: str, dupes):
+def find_dups(line: str, body, idx: int):
     for word in DDL_KEYWORDS:
         if word in line.lower():
-            dupes.update([line.lower()])
-    return dupes
+            body.names.update([line.lower()])
+    if body.names[line.lower()] > 1:
+        print(f"Duplicate table name at line: {idx} with {line.lower()}")
+    return body
 
 
 class Collisions(object):
@@ -255,7 +257,7 @@ class Collisions(object):
                 .format(version=self.version)
 
     @staticmethod
-    def destroy(self):
+    def destroy():
         """Destructor for Collisions"""
         print("Collisions is finished....")
 
@@ -392,10 +394,10 @@ def main(argv):
     #     output.append(sqrub.set_schema())
     # if prefix:
     #     sqrub.prefix = prefix
-    for index, line in enumerate(collisions.doc):
-        # if index == 0:
+    for idx, line in enumerate(collisions.doc):
+        # if idx == 0:
         #     sqrub.indent = False
-        print(find_dups(line, collisions.names))
+        find_dups(line, collisions, idx)
         # output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
     # sqrub.write_dump(sqrub.outfile, output)
     collisions.destroy()
