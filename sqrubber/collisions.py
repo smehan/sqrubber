@@ -1,6 +1,7 @@
 ###########################################################
 # Copyright (C) 2015-2017 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
-# sqrubber will perform various transformations and verifications on an SQL dump file
+# Collisions finds duplicate table names in a SQL dump file
+# and makes them unique from metadata found in the sqrubber metadata comments.
 ###########################################################
 #
 #  -*- coding: utf-8 -*-
@@ -9,10 +10,9 @@
 import os
 import sys
 import getopt
-import re
 import datetime
 import pathlib
-from collections import OrderedDict, Counter
+from collections import Counter
 
 # 3rd party libs
 
@@ -21,7 +21,6 @@ from collections import OrderedDict, Counter
 
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'drop table']
-INDENT = ' '*4
 
 VERSION = '0.3.0'
 
@@ -172,17 +171,17 @@ class Collisions(object):
         #self.print_only = True
         if self.print_only:
             # FIXME this should probably turn into a cmd line flag and even break out from a conf file....
-            print("-- Collisions version {version}\n".format(version=self.version))
+            print(f"-- Collisions version {self.version}\n")
             print("-- Collisions output generated on " + str(datetime.datetime.now()) + 3 * "\n")
             for line in self.doc:
                 print(line)
             return
         path = self.outfile
         with open(path, 'w') as f:
-            f.write("-- Collisions version {version}\n".format(version=self.version))
+            f.write(f"-- Collisions version {self.version}\n")
             f.write("-- Collisions output generated on " + str(datetime.datetime.now()) + 3 * "\n")
             for line in self.doc:
-                f.write(line + '\n')
+                f.write(f"{line}\n")
 
 
 def usage():
