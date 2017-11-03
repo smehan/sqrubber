@@ -72,7 +72,7 @@ def process_dupes(line: str, body, idx: int):
     return
 
 
-def find_dupes(line: str, body, idx: int):
+def find_dupes(line: str, body):
     for word in DDL_KEYWORDS:
         if word in line.lower():
             body.names.update([line.lower()])
@@ -207,7 +207,7 @@ def main(argv):
     :param argv:
     :return:
     """
-    print_only = None
+    print_only = False
     outfile = None
     try:
         options, remainder = getopt.gnu_getopt(argv, 'hpi:', ['print', 'infile=', 'overwrite'])
@@ -241,8 +241,8 @@ def main(argv):
         print("Input is not DDL, please check input....")
         exit()
     # First find the duplicates
-    for idx, line in enumerate(collisions.doc):
-        find_dupes(line, collisions, idx)
+    for line in collisions.doc:
+        find_dupes(line, collisions)
     # Then process those found
     for idx, line in enumerate(collisions.doc):
         process_dupes(line, collisions, idx)
