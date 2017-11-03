@@ -12,7 +12,7 @@ import getopt
 import re
 import datetime
 import pathlib
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 
 # 3rd party libs
 
@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 
 # These keywords are verbs and direct objects in initial DDL/DML statements.
-DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']
+DDL_KEYWORDS = ['create table', 'drop table']
 DDL_OTHER_KEYWORDS = ['set names']
 DDL_TYPES = ['boolean', 'double precision', 'integer', 'text',  'timestamp']
 SPECIAL_CHARS = OrderedDict([('#', 'num'),
@@ -205,6 +205,13 @@ def add_schema(name, schema):
         return '.'.join((schema, name))
 
 
+def find_dups(line: str, dupes):
+    for word in DDL_KEYWORDS:
+        if word in line.lower():
+            dupes.update([line.lower()])
+    return dupes
+
+
 class Collisions(object):
     """
     Collisions consumes a sqrubbed SQL dump and parses it,
@@ -237,6 +244,7 @@ class Collisions(object):
                 print(e)
             raise SystemExit()
         self.version = VERSION
+        self.names = Counter()
 
     def __repr__(self):
         """
@@ -386,7 +394,7 @@ def main(argv):
     for index, line in enumerate(collisions.doc):
         # if index == 0:
         #     sqrub.indent = False
-        print(line)
+        print(find_dups(line, collisions.names))
         # output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
     # sqrub.write_dump(sqrub.outfile, output)
     collisions.destroy()
