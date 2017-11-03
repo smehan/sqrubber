@@ -211,7 +211,7 @@ def process_dupes(line: str, body, idx: int):
     return
 
 
-def find_dups(line: str, body, idx: int):
+def find_dupes(line: str, body, idx: int):
     for word in DDL_KEYWORDS:
         if word in line.lower():
             body.names.update([line.lower()])
@@ -402,7 +402,7 @@ def main(argv):
     for idx, line in enumerate(collisions.doc):
         # if idx == 0:
         #     sqrub.indent = False
-        find_dups(line, collisions, idx)
+        find_dupes(line, collisions, idx)
         # output.append(process_line(line, sqrub, sqrub.prefix, sqrub.schema))
     # sqrub.write_dump(sqrub.outfile, output)
     collisions.destroy()
