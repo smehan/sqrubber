@@ -22,7 +22,7 @@ from collections import Counter
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'drop table']
 
-VERSION = '0.3.2'
+VERSION = '0.4.0'
 
 
 def get_sql_dump_name(body, idx: int):
@@ -72,6 +72,8 @@ def process_create_table(suffix: str, body, idx: int):
 
 def process_table_name(line: str, body, idx: int):
     """Splits the processing into two branches based on drop or create table in DDL line"""
+    if not is_processable(line):
+        return
     table_suffix = get_sql_dump_name(body, idx)
     if 'drop table' in line:
         process_drop_table(table_suffix, body, idx)
