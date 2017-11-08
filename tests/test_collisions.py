@@ -11,82 +11,31 @@
 import pytest
 
 # application libs
-import sqrubber as sq
+import collisions as coll
 
 
-@pytest.mark.skip('Sqrubber object failing on tests')
-def test_input_exists(sqrub):
-    assert sqrub.doc
-    print("There is no content in the Sqrubber object")
+@pytest.mark.skip('Collisions object failing on tests')
+def test_input_exists(cs_sql):
+    assert cs_sql.doc
+    print("There is no content in the Collisions object")
 
 
-@pytest.mark.skip('Sqrubber object failing on tests')
-def test_validate(sqrub):
-    assert sqrub.validate()
+@pytest.mark.skip('Collisions object failing on tests')
+def test_validate(cs_sql):
+    assert cs_sql.validate()
     print("Can't find valid DDL")
 
 
-@pytest.mark.skip('Sqrubber object failing on tests')
+@pytest.mark.skip('Collisions object failing on tests')
 def test_not_valid(sqrub_not_sql_input):
     assert not sqrub_not_sql_input.validate()
 
 
-@pytest.mark.skip('Sqrubber object failing on tests')
-def test_file_check(sqrub):
-    assert sqrub
+@pytest.mark.skip('Collisions object failing on tests')
+def test_file_check(coll):
+    assert coll
 
 
-def test_standardize_name(sqrub):
-    assert 'DROP TABLE employees;' == sq.process_line('DROP TABLE employees;', sqrub)
-    assert 'CREATE TABLE employees (' == sq.process_line('CREATE TABLE employees (', sqrub)
-    assert 'CREATE TABLE former_employees (' == sq.process_line('CREATE TABLE former employees (', sqrub)
-    assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (', sqrub)
-    assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
-    assert 'CREATE TABLE tmpclp277481 (' == sq.process_line('CREATE TABLE "~TMPCLP277481" (', sqrub)
-    assert 'CREATE TABLE r_and_i_trend_data_albany (' == sq.process_line('CREATE TABLE "R&I Trend Data Albany" (', sqrub)
+def test_get_sql_dump_name(cs_sql):
+    assert 'db_2' == coll.get_sql_dump_name(cs_sql, 8)
 
-
-def test_standardize_names_with_indents(sqrub):
-    sqrub.indent = True
-    assert '     returned TEXT,' == sq.process_line('"Returned>" TEXT,', sqrub)
-    assert '     survey_05 TEXT,' == sq.process_line('"Survey? 05" TEXT,', sqrub)
-    assert '     jan09_survey TEXT,' == sq.process_line('\"Jan09 Survey?\" TEXT,', sqrub)
-    assert '     survey_2005 TEXT,' == sq.process_line('"Survey 2005?" TEXT,', sqrub)
-    assert '     deadline TEXT,' == sq.process_line('"Deadline?" TEXT,', sqrub)
-    assert '     money_change DOUBLE PRECISION,' == sq.process_line('"$ Change" DOUBLE PRECISION,', sqrub)
-    assert '     percent_change DOUBLE PRECISION' == sq.process_line('"% Change" DOUBLE PRECISION', sqrub)
-
-
-def test_ddl_types_in_line(sqrub):
-    assert 'returned TEXT,' == sq.process_line('"Returned" TEXT,', sqrub)
-    assert 'returned BOOLEAN,' == sq.process_line('"Returned" BOOLEAN,', sqrub)
-    assert 'amount INTEGER,' == sq.process_line('"amount" INTEGER,', sqrub)
-    assert 'returned DOUBLE PRECISION,' == sq.process_line('"Returned" double precision,', sqrub)
-    assert not sq.process_line('"Dud" VARCHAR', sqrub)
-
-
-def test_standardize_name_with_if_exists(sqrub):
-    assert 'DROP TABLE IF EXISTS employees;' == sq.process_line('DROP TABLE if exists employees;', sqrub)
-    assert 'CREATE TABLE IF EXISTS employees (' == sq.process_line('CREATE TABLE if exists employees (', sqrub)
-    assert 'CREATE TABLE IF EXISTS former_employees (' == sq.process_line('CREATE TABLE if exists former employees (', sqrub)
-    assert 'CREATE TABLE IF EXISTS yet_to_be_employees (' == sq.process_line('CREATE TABLE if exists YET to BE employees (', sqrub)
-    assert 'DROP TABLE IF EXISTS yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;', sqrub)
-
-
-def test_add_prefix():
-    assert 'test001_employees' == sq.add_prefix('employees', 'test001')
-    assert 'test001_employees' == sq.add_prefix('employees', 'test001')
-    assert 'test001_former_employees' == sq.add_prefix('former_employees', 'test001')
-    assert 'test001_former_employees' != sq.add_prefix('former employees', 'test001')
-    # TODO what about multiple word names?
-
-
-def test_split_line_with_column_name():
-    assert ('jan09 survey?', ' text,') == sq.split_line_with_column_name('\"Jan09 Survey?\" TEXT,')
-    assert ('deadline?', ' text,') == sq.split_line_with_column_name('"Deadline?" TEXT,')
-    assert ('package sent?', ' boolean,') == sq.split_line_with_column_name('"Package Sent?" BOOLEAN,')
-
-
-def test_split_insert_line():
-    assert 'INSERT INTO test (name, store_num, category, item, size_or_quantity, price)' == sq.split_insert_line('INSERT INTO test("Name","Store #","Category","Item","Size/Quantity","Price")')
-    assert 'INSERT INTO test (store_num, jan09_survey)'  == sq.split_insert_line('INSERT INTO test("Store #","Jan09 Survey?")')
