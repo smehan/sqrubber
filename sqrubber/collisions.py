@@ -22,7 +22,7 @@ from collections import Counter
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'drop table']
 
-VERSION = '0.3.0'
+VERSION = '0.3.1'
 
 
 def get_sql_dump_name(body, idx: int):
