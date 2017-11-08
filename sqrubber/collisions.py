@@ -37,6 +37,7 @@ def get_sql_dump_name(body, idx: int):
 
 
 def insert_suffix(old_string, suffix, table_type='drop'):
+    """Inserts a suffix at appropriate position in a specific DDL statement"""
     if table_type == 'drop':
         pos = -1
     elif table_type == 'create':
