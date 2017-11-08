@@ -252,8 +252,9 @@ def main(argv):
     collisions.print_only = print_only
     if collisions.infile:
         collisions.doc = collisions.read_dump(collisions.infile)
+    # Check if there is any valid DDL in the document
     if not collisions.validate():
-        print("Input is not DDL, please check input....")
+        print("Input has no valid DDL, please check input....")
         exit()
     # First find the duplicates
     for line in collisions.doc:
