@@ -47,32 +47,51 @@ def insert_suffix(old_string, suffix, table_type='drop'):
     return old_string[:pos] + '_' + suffix + old_string[pos:]
 
 
+def is_processable(line: str):
+    """Tests whether the line has processable DDL"""
+    if 'drop_table' in line or 'create_table' in line:
+        return True
+    return False
+
+
 def process_drop_table(suffix: str, body, idx: int):
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'drop')
 
 
 def process_create_table(suffix: str, body, idx: int):
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
-    while 'insert into' not in body.doc[idx].lower():
+    while 'insert into' not in body.doc[idx].lower() and idx < len(body.doc) - 1:
         idx += 1
+        if is_processable(body.doc[idx]):
+            return
+    if idx == len(body.doc) - 1:
+        return
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
+    return body.doc[idx]
 
 
 def process_table_name(line: str, body, idx: int):
+    """Splits the processing into two branches based on drop or create table in DDL line"""
     table_suffix = get_sql_dump_name(body, idx)
     if 'drop table' in line:
         process_drop_table(table_suffix, body, idx)
     elif 'create table' in line:
+        print(f"idx:{idx}, suff: {table_suffix}, line:{line}")
         process_create_table(table_suffix, body, idx)
 
 
 def process_dupes(line: str, body, idx: int):
+    """Given a list of duplicate table names, make them unique.
+    :param line: the current line of the doc being processed
+    :param body: the collisions object formed from the file being processed
+    :param idx: the index of the line"""
     if body.names[line.lower()] > 1:
         process_table_name(line.lower(), body, idx)
     return
 
 
 def find_dupes(line: str, body):
+    """Find and collect all the duplicate tablenames in the document"""
     for word in DDL_KEYWORDS:
         if word in line.lower():
             body.names.update([line.lower()])

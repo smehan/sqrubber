@@ -39,3 +39,15 @@ def test_file_check(coll):
 def test_get_sql_dump_name(cs_sql):
     assert 'db_2' == coll.get_sql_dump_name(cs_sql, 8)
 
+
+def test_orphan_create_table(cs_orphan_create_sql):
+    """There may be a create table DDL that has no following insert DDL for that tablename.
+       In which case the process_table_name should return a None, otherwise the new insert"""
+    orphan_line = 'CREATE TABLE myschema.der_all_brands_transposed ('.lower()
+    coll.find_dupes(orphan_line, cs_orphan_create_sql)
+    assert coll.process_create_table(orphan_line, cs_orphan_create_sql, 104) is None
+    orphan_line = 'CREATE TABLE myschema.der_all_brands_price_data ('.lower()
+    coll.find_dupes(orphan_line, cs_orphan_create_sql)
+    assert coll.process_create_table(orphan_line, cs_orphan_create_sql, 82) == \
+           'INSERT INTO myschema.der_all_brands_price_data_create table myschema.der_all_brands_price_data ( (market, name, store_num, category, item, size_or_quantity, price, date)'
+

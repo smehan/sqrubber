@@ -67,10 +67,11 @@ def cs_sql():
 
 
 @pytest.fixture()
-def coll_sql_dump_name():
-    cs = coll.Collisions(infile='multiple-example.sql')
+def cs_orphan_create_sql():
+    cs = coll.Collisions(infile='tests/orphan_create_table.sql')
+    if cs.infile:
+        cs.doc = cs.read_dump(cs.infile)
     return cs
-
 
 @pytest.fixture()
 def min_sql_comment_with_meta():

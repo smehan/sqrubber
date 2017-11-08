@@ -15,8 +15,6 @@
 
 SET NAMES 'UTF8';
 
-
-
 DROP TABLE IF EXISTS myschema.der_all_brands_price_data;
 
 CREATE TABLE myschema.der_all_brands_price_data (
@@ -102,6 +100,7 @@ INSERT INTO myschema.der_all_brands_price_data (market, name, store_num, categor
 
 DROP TABLE IF EXISTS myschema.der_all_brands_transposed;
 
+-- this is the orphaned create table DDL. It has no corresponding INSERT INTO
 CREATE TABLE myschema.der_all_brands_transposed (
      name TEXT,
      store_num INTEGER,
@@ -110,16 +109,5 @@ CREATE TABLE myschema.der_all_brands_transposed (
      size_or_quantity TEXT,
      price DOUBLE PRECISION
 );
-
-INSERT INTO myschema.der_all_brands_transposed (name, store_num, category, item, size_or_quantity, price)
-    VALUES(E'McDonald''s',264,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.79),
-          (E'McDonald''s',270,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.29),
-          (E'McDonald''s',282,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19),
-          (E'McDonald''s',283,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19),
-          (E'McDonald''s',284,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.99),
-          (E'McDonald''s',285,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.79),
-          (E'McDonald''s',286,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.99);
-
-
 
 -- Sqrubber job finished
