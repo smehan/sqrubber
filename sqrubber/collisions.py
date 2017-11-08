@@ -118,7 +118,7 @@ class Collisions(object):
 
         :return:
         """
-        return '< Collisions ver {version}:'\
+        return '< Collisions ver {version} >'\
                 .format(version=self.version)
 
     @staticmethod
