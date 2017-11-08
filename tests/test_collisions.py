@@ -36,6 +36,10 @@ def test_file_check(coll):
     assert coll
 
 
+def test_validate(cs_sql):
+    assert cs_sql.validate()
+
+
 def test_get_sql_dump_name(cs_sql):
     assert 'db_2' == coll.get_sql_dump_name(cs_sql, 8)
 

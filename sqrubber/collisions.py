@@ -151,12 +151,12 @@ class Collisions(object):
         """
         Validates that the input contains a SQL DDL statement.
         Only meant as a high-level check before serious parsing begins.
-        :return: True if DDL is found, False otherwise.
+        :return: True if any valid DDL is found, False otherwise.
         """
         if not self.doc:
             return False
         for line in self.doc:
-            if self._token_in_line(line):
+            if not self._token_in_line(line):
                 return True
         return False
 
