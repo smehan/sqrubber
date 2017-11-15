@@ -49,9 +49,9 @@ def test_orphan_create_table(cs_orphan_create_sql):
        in which case the process_table_name should return a None, otherwise the new insert"""
     orphan_line = 'CREATE TABLE myschema.der_all_brands_transposed ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(orphan_line, cs_orphan_create_sql, 104) is None
+    assert coll.process_create_table(coll.get_sql_dump_name(cs_orphan_create_sql, 104), cs_orphan_create_sql, 104) is None
     orphan_line = 'CREATE TABLE myschema.der_all_brands_price_data ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(orphan_line, cs_orphan_create_sql, 82) == \
-           'INSERT INTO myschema.der_all_brands_price_data_create table myschema.der_all_brands_price_data ( (market, name, store_num, category, item, size_or_quantity, price, date)'
+    assert coll.process_create_table(coll.get_sql_dump_name(cs_orphan_create_sql, 82), cs_orphan_create_sql, 82) == \
+           'INSERT INTO myschema.der_all_brands_price_data_db_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
 

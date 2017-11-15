@@ -36,7 +36,7 @@ def sqrub():
     return sqrub
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def min_sql_input():
     data = ['DROP TABLE employees']
     return data
@@ -72,6 +72,12 @@ def cs_orphan_create_sql():
     if cs.infile:
         cs.doc = cs.read_dump(cs.infile)
     return cs
+
+
+@pytest.fixture()
+def cs_input_dir():
+    cs = coll.main()
+
 
 @pytest.fixture()
 def min_sql_comment_with_meta():
