@@ -44,6 +44,12 @@ def test_get_sql_dump_name(cs_sql):
     assert 'db_2' == coll.get_sql_dump_name(cs_sql, 8)
 
 
+def test_multiple_sql_find_dupes(cs_sql):
+    for line in cs_sql.doc:
+        coll.find_dupes(line, cs_sql)
+    assert cs_sql.names['create table myschema.der_all_brands_price_data ('] == 2
+
+
 def test_orphan_create_table(cs_orphan_create_sql):
     """There may be a create table DDL that has no following insert DDL for that table name,
        in which case the process_table_name should return a None, otherwise the new insert"""
