@@ -50,6 +50,17 @@ def test_multiple_sql_find_dupes(cs_sql):
     assert cs_sql.names['create table myschema.der_all_brands_price_data ('] == 2
 
 
+def test_multiple_sql_process_dupes(cs_sql):
+    for line in cs_sql.doc:
+        coll.find_dupes(line, cs_sql)
+    # Then process those found
+    for idx, line in enumerate(cs_sql.doc):
+        coll.process_dupes(line, cs_sql, idx)
+    assert cs_sql.doc[81] == 'DROP TABLE IF EXISTS myschema.der_all_brands_price_data_db_2;'
+    assert cs_sql.doc[82] == ''
+    assert cs_sql.doc[83] == 'CREATE TABLE myschema.der_all_brands_price_data_db_2 ('
+
+
 def test_orphan_create_table(cs_orphan_create_sql):
     """There may be a create table DDL that has no following insert DDL for that table name,
        in which case the process_table_name should return a None, otherwise the new insert"""
