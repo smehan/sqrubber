@@ -49,7 +49,7 @@ def insert_suffix(old_string, suffix, table_type='drop'):
 
 def is_processable(line: str):
     """Tests whether the line has processable DDL"""
-    if 'drop_table' in line or 'create_table' in line:
+    if 'drop table' in line or 'create table' in line.lower():
         return True
     return False
 
@@ -83,6 +83,8 @@ def process_table_name(line: str, body, idx: int):
 
 def process_dupes(line: str, body, idx: int):
     """Given a list of duplicate table names, make them unique.
+    These lines are contextualized by DDL keyword, e.g., DROP tablename is
+    different to CREATE tablename and so the test of > 1 is measuring by context.
     :param line: the current line of the doc being processed
     :param body: the collisions object formed from the file being processed
     :param idx: the index of the line"""
