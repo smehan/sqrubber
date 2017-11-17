@@ -23,7 +23,7 @@ from collections import Counter
 DDL_KEYWORDS = ['create table', 'drop table']
 MAX_LENGTH = 63
 
-VERSION = '0.4.0'
+VERSION = '0.4.1'
 
 
 def get_sql_dump_name(body, idx: int):
@@ -66,7 +66,7 @@ def insert_suffix(old_string, suffix, table_type='drop'):
 
 def is_processable(line: str):
     """Tests whether the line has processable DDL"""
-    if 'drop table' in line.lower() or 'create table' in line.lower() or 'insert into' in line.lower():
+    if 'drop table' in line.lower() or 'create table' in line.lower():
         return True
     return False
 
