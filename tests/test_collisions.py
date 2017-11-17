@@ -56,9 +56,9 @@ def test_multiple_sql_process_dupes(cs_sql):
     # Then process those found
     for idx, line in enumerate(cs_sql.doc):
         coll.process_dupes(line, cs_sql, idx)
-    assert cs_sql.doc[81] == 'DROP TABLE IF EXISTS myschema.der_all_brands_price_data_db_2;'
+    assert cs_sql.doc[81] == 'DROP TABLE IF EXISTS myschema.der_all_brands_price_data_d_2;'
     assert cs_sql.doc[82] == ''
-    assert cs_sql.doc[83] == 'CREATE TABLE myschema.der_all_brands_price_data_db_2 ('
+    assert cs_sql.doc[83] == 'CREATE TABLE myschema.der_all_brands_price_data_d_2 ('
 
 
 def test_orphan_create_table(cs_orphan_create_sql):
@@ -66,9 +66,13 @@ def test_orphan_create_table(cs_orphan_create_sql):
        in which case the process_table_name should return a None, otherwise the new insert"""
     orphan_line = 'CREATE TABLE myschema.der_all_brands_transposed ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(coll.get_sql_dump_name(cs_orphan_create_sql, 104), cs_orphan_create_sql, 104) is None
+    assert coll.process_create_table(coll.make_suffix(coll.get_sql_dump_name(cs_orphan_create_sql, 103)), cs_orphan_create_sql, 103) is None
     orphan_line = 'CREATE TABLE myschema.der_all_brands_price_data ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(coll.get_sql_dump_name(cs_orphan_create_sql, 82), cs_orphan_create_sql, 82) == \
-           'INSERT INTO myschema.der_all_brands_price_data_db_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
+    assert coll.process_create_table(coll.make_suffix(coll.get_sql_dump_name(cs_orphan_create_sql, 81)), cs_orphan_create_sql, 81) == \
+           'INSERT INTO myschema.der_all_brands_price_data_d_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
 
+
+def test_make_suffix():
+    assert coll.make_suffix('wilkes_barre_report_fall_2016') == \
+        'wbrf_2016'

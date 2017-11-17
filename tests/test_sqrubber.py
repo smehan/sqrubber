@@ -8,6 +8,8 @@
 # standard libs
 
 # 3rd party libs
+from unittest import TestCase
+
 import pytest
 
 # application libs
@@ -43,7 +45,8 @@ def test_standardize_name(sqrub):
     assert 'CREATE TABLE yet_to_be_employees (' == sq.process_line('CREATE TABLE YET to BE employees (', sqrub)
     assert 'DROP TABLE yet_to_be_employees;' == sq.process_line('DROP TABLE YET to BE employEeS;', sqrub)
     assert 'CREATE TABLE tmpclp277481 (' == sq.process_line('CREATE TABLE "~TMPCLP277481" (', sqrub)
-    assert 'CREATE TABLE r_and_i_trend_data_albany (' == sq.process_line('CREATE TABLE "R&I Trend Data Albany" (', sqrub)
+    assert 'CREATE TABLE r_and_i_trend_data_albany (' == sq.process_line('CREATE TABLE "R&I Trend Data Albany" (',
+                                                                         sqrub)
 
 
 def test_standardize_names_with_indents(sqrub):
@@ -68,9 +71,12 @@ def test_ddl_types_in_line(sqrub):
 def test_standardize_name_with_if_exists(sqrub):
     assert 'DROP TABLE IF EXISTS employees;' == sq.process_line('DROP TABLE if exists employees;', sqrub)
     assert 'CREATE TABLE IF EXISTS employees (' == sq.process_line('CREATE TABLE if exists employees (', sqrub)
-    assert 'CREATE TABLE IF EXISTS former_employees (' == sq.process_line('CREATE TABLE if exists former employees (', sqrub)
-    assert 'CREATE TABLE IF EXISTS yet_to_be_employees (' == sq.process_line('CREATE TABLE if exists YET to BE employees (', sqrub)
-    assert 'DROP TABLE IF EXISTS yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;', sqrub)
+    assert 'CREATE TABLE IF EXISTS former_employees (' == sq.process_line('CREATE TABLE if exists former employees (',
+                                                                          sqrub)
+    assert 'CREATE TABLE IF EXISTS yet_to_be_employees (' == sq.process_line(
+        'CREATE TABLE if exists YET to BE employees (', sqrub)
+    assert 'DROP TABLE IF EXISTS yet_to_be_employees;' == sq.process_line('DROP TABLE if exists YET to BE employEeS;',
+                                                                          sqrub)
 
 
 def test_add_prefix():
@@ -88,5 +94,7 @@ def test_split_line_with_column_name():
 
 
 def test_split_insert_line():
-    assert 'INSERT INTO test (name, store_num, category, item, size_or_quantity, price)' == sq.split_insert_line('INSERT INTO test("Name","Store #","Category","Item","Size/Quantity","Price")')
-    assert 'INSERT INTO test (store_num, jan09_survey)'  == sq.split_insert_line('INSERT INTO test("Store #","Jan09 Survey?")')
+    assert 'INSERT INTO test (name, store_num, category, item, size_or_quantity, price)' == sq.split_insert_line(
+        'INSERT INTO test("Name","Store #","Category","Item","Size/Quantity","Price")')
+    assert 'INSERT INTO test (store_num, jan09_survey)' == sq.split_insert_line(
+        'INSERT INTO test("Store #","Jan09 Survey?")')

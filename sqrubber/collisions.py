@@ -37,6 +37,22 @@ def get_sql_dump_name(body, idx: int):
         return None
 
 
+def make_suffix(dump_name: str)-> str:
+    """ Makes a suffix which is a contraction of extracted sql dump name.
+        Is acronym of first letters in words plus _DATE """
+    suffix = ''
+    for p in dump_name.split('_'):
+        p = p.strip('_')
+        if len(p) == 0:
+            continue
+        if p[0].isalpha():
+            suffix += p[0]
+        elif p[0].isdigit():
+            suffix += '_'
+            suffix += p
+    return suffix
+
+
 def insert_suffix(old_string, suffix, table_type='drop'):
     """Inserts a suffix at appropriate position in a specific DDL statement"""
     if table_type == 'drop':
@@ -50,7 +66,7 @@ def insert_suffix(old_string, suffix, table_type='drop'):
 
 def is_processable(line: str):
     """Tests whether the line has processable DDL"""
-    if 'drop table' in line.lower() or 'create table' in line.lower():
+    if 'drop table' in line.lower() or 'create table' in line.lower() or 'insert into' in line.lower():
         return True
     return False
 
@@ -79,22 +95,33 @@ def make_table_name(body, idx: int, suffix: str):
     if 'drop table if exists ' in line:
         start = 21
         end = line.index(';')
-        tn = line[start:end]
+    # create table ingest.db033_sub_category_sort (
+    elif 'create table ' in line:
+        start = 13
+        end = line.index(' (')
+    # INSERT INTO ingest.db008_all_data_2015_may (market,  category, item, price, register_ring___beverages, qc_notes)
+    elif 'insert into ' in line:
+        start = 12
+        end = line.index(' (')
+    # fn is the full identifier, including schema components
+    fn = line[start:end]
+    # tn is the table name with no schema
+    tn = fn.split('.')[1]
+    if len(tn) > MAX_LENGTH:
         print(f'Length: {len(tn)} - {tn}')
-        return tn
+    return fn
 
 
 def process_table_name(line: str, body, idx: int):
     """Splits the processing into two branches based on drop or create table in DDL line"""
     if not is_processable(line):
         return
-    print(line)
-    table_suffix = get_sql_dump_name(body, idx)
-    new_table_name = make_table_name(body, idx, table_suffix)
+    table_suffix = make_suffix(get_sql_dump_name(body, idx))
     if 'drop table' in line:
         process_drop_table(table_suffix, body, idx)
     elif 'create table' in line:
         process_create_table(table_suffix, body, idx)
+    new_table_name = make_table_name(body, idx, table_suffix)
 
 
 def process_dupes(line: str, body, idx: int):
