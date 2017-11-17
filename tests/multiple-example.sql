@@ -98,7 +98,12 @@ INSERT INTO myschema.der_all_brands_price_data (market, name, store_num, categor
           (E'Atlanta',E'McDonald''s',282,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19,E'March 2013'),
           (E'Atlanta',E'McDonald''s',283,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19,E'March 2013'),
           (E'Atlanta',E'McDonald''s',284,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.99,E'March 2013');
-
+INSERT INTO myschema.der_all_brands_price_data (market, name, store_num, category, item, size_or_quantity, price, date)
+    VALUES(E'Atlanta',E'McDonald''s',364,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.79,E'March 2013'),
+          (E'Atlanta',E'McDonald''s',370,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.29,E'March 2013'),
+          (E'Atlanta',E'McDonald''s',382,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19,E'March 2013'),
+          (E'Atlanta',E'McDonald''s',383,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',4.19,E'March 2013'),
+          (E'Atlanta',E'McDonald''s',384,E'Extra Value Meals',E'Bacon, Egg and Cheese Biscuit EVM',E'Meal',3.99,E'March 2013');
 
 DROP TABLE IF EXISTS myschema.der_all_brands_transposed;
 

@@ -23,7 +23,7 @@ from collections import Counter
 DDL_KEYWORDS = ['create table', 'drop table']
 MAX_LENGTH = 63
 
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 
 
 def get_sql_dump_name(body, idx: int):
@@ -75,8 +75,9 @@ def process_drop_table(suffix: str, body, idx: int):
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'drop')
 
 
-def process_create_table(suffix: str, body, idx: int):
-    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
+def process_create_table(suffix: str, body, idx: int, recurse=False):
+    if not recurse:
+        body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
     while 'insert into' not in body.doc[idx].lower() and idx < len(body.doc) - 1:
         idx += 1
         if is_processable(body.doc[idx]):
@@ -85,6 +86,8 @@ def process_create_table(suffix: str, body, idx: int):
     if idx == len(body.doc) - 1:
         return
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
+    # recurse for multiple inserts
+    process_create_table(suffix, body, idx+1, recurse=True)
     return body.doc[idx]
 
 

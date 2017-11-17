@@ -59,6 +59,8 @@ def test_multiple_sql_process_dupes(cs_sql):
     assert cs_sql.doc[81] == 'DROP TABLE IF EXISTS myschema.der_all_brands_price_data_d_2;'
     assert cs_sql.doc[82] == ''
     assert cs_sql.doc[83] == 'CREATE TABLE myschema.der_all_brands_price_data_d_2 ('
+    assert cs_sql.doc[94] == 'INSERT INTO myschema.der_all_brands_price_data_d_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
+    assert cs_sql.doc[100] == 'INSERT INTO myschema.der_all_brands_price_data_d_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
 
 
 def test_orphan_create_table(cs_orphan_create_sql):
