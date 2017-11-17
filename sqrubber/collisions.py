@@ -21,6 +21,7 @@ from collections import Counter
 
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'drop table']
+MAX_LENGTH = 63
 
 VERSION = '0.4.0'
 
@@ -49,7 +50,7 @@ def insert_suffix(old_string, suffix, table_type='drop'):
 
 def is_processable(line: str):
     """Tests whether the line has processable DDL"""
-    if 'drop table' in line or 'create table' in line.lower():
+    if 'drop table' in line.lower() or 'create table' in line.lower():
         return True
     return False
 
@@ -64,17 +65,32 @@ def process_create_table(suffix: str, body, idx: int):
         idx += 1
         if is_processable(body.doc[idx]):
             return
+    # guard against end of doc overrun
     if idx == len(body.doc) - 1:
         return
     body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
     return body.doc[idx]
 
 
+def make_table_name(body, idx: int, suffix: str):
+    # "drop table if exists ingest.db033_grocery_convenience_data_entry_chicago_data_entry_spring_2016;"
+    # 'drop table if exists' = 21
+    line = body.doc[idx].lower()
+    if 'drop table if exists ' in line:
+        start = 21
+        end = line.index(';')
+        tn = line[start:end]
+        print(f'Length: {len(tn)} - {tn}')
+        return tn
+
+
 def process_table_name(line: str, body, idx: int):
     """Splits the processing into two branches based on drop or create table in DDL line"""
     if not is_processable(line):
         return
+    print(line)
     table_suffix = get_sql_dump_name(body, idx)
+    new_table_name = make_table_name(body, idx, table_suffix)
     if 'drop table' in line:
         process_drop_table(table_suffix, body, idx)
     elif 'create table' in line:
