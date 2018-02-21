@@ -23,7 +23,7 @@ from collections import Counter
 DDL_KEYWORDS = ['create table', 'drop table']
 MAX_LENGTH = 63
 
-VERSION = '0.4.2'
+VERSION = '0.5.0'
 
 
 def get_sql_dump_name(body, idx: int):
