@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2015-2018 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # sqrubber will perform various transformations and verifications on an SQL dump file
 ###########################################################
 #
@@ -15,15 +15,6 @@ import datetime
 # 3rd party libs
 
 # application libs
-
-
-def doubleit(x):
-    """
-
-    :param x:
-    :return:
-    """
-    return x * 2
 
 # These keywords are verbs and direct objects in initial DDL/DML statements.
 DDL_KEYWORDS = ['create table', 'create column', 'drop column', 'drop table', 'alter table']

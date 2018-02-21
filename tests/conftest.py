@@ -1,4 +1,4 @@
-# Copyright (C) 2001-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2001-2018 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # 
 #
 #  -*- coding: utf-8 -*-

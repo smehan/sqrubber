@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2015-2016 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2015-2018 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # Functional test suite
 ###########################################################
 #
