@@ -1,5 +1,5 @@
 ###########################################################
-# Copyright (C) 2015-2017 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
+# Copyright (C) 2015-2018 Shawn Mehan <shawn dot mehan at shawnmehan dot com>
 # Collisions finds duplicate table names in a SQL dump file
 # and makes them unique from metadata found in the sqrubber metadata comments.
 ###########################################################
