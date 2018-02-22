@@ -194,7 +194,7 @@ class Collisions(object):
     def validate(self):
         """
         Validates that the input contains a SQL DDL statement.
-        Only meant as a high-level check before serious parsing begins.
+        Only meant as a high-level sanity check before serious parsing begins.
         :return: True if any valid DDL is found, False otherwise.
         """
         if not self.doc:
