@@ -184,7 +184,7 @@ class Collisions(object):
 
     def __repr__(self):
         """ REPR for Collisions"""
-        return '< Collisions ver {version} >'.format(version=self.version)
+        return f'< Collisions ver {self.version} >'
 
     @staticmethod
     def destroy():
@@ -270,10 +270,10 @@ def main(argv):
     try:
         options, remainder = getopt.gnu_getopt(argv, 'hpi:', ['print', 'infile=', 'overwrite'])
     except getopt.GetoptError:
-        print("Error. Proper usage is " + usage())
+        print(f"Error. Proper usage is {usage()}")
         sys.exit(2)
     if len(options) == 0:
-        print("Error. Proper usage is " + usage())
+        print(f"Error. Proper usage is {usage()}")
         sys.exit(2)
     for opt, arg in options:
         if opt == '-h':
