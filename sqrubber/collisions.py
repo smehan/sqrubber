@@ -183,12 +183,8 @@ class Collisions(object):
         self.names = Counter()
 
     def __repr__(self):
-        """
-
-        :return:
-        """
-        return '< Collisions ver {version} >'\
-                .format(version=self.version)
+        """ REPR for Collisions"""
+        return '< Collisions ver {version} >'.format(version=self.version)
 
     @staticmethod
     def destroy():
