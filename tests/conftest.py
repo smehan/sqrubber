@@ -60,7 +60,7 @@ def sql_file_input():
 
 @pytest.fixture()
 def cs_sql():
-    cs = coll.Collisions(infile='tests/multiple-example.sql')
+    cs = coll.Collisions(infile='multiple-example.sql')
     if cs.infile:
         cs.doc = cs.read_dump(cs.infile)
     return cs
@@ -68,7 +68,7 @@ def cs_sql():
 
 @pytest.fixture()
 def cs_orphan_create_sql():
-    cs = coll.Collisions(infile='tests/orphan_create_table.sql')
+    cs = coll.Collisions(infile='orphan_create_table.sql')
     if cs.infile:
         cs.doc = cs.read_dump(cs.infile)
     return cs
