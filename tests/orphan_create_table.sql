@@ -1,3 +1,5 @@
+-- noinspection SqlNoDataSourceInspectionForFile
+
 -- Sqrubber version 0.3.0
 -- Sqrubber output generated on 2017-11-01 13:36:42.153336
 
