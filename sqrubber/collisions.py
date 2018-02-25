@@ -54,6 +54,22 @@ def make_suffix(dump_name: str)-> str:
     return suffix
 
 
+def make_suffix_2(dump_name: str, span: int)-> str:
+    """Makes a suffix with a variable number of letters from distinguishing factors
+    in extracted SQL dump name. Extracted letters in words plus _DATE"""
+    suffix = ''
+    for p in dump_name.split('_'):
+        p = p.strip('_')
+        if len(p) == 0:
+            continue
+        if p[0].isalpha():
+            suffix += p[0:span]
+        elif p[0].isdigit():
+            suffix += '_'
+            suffix += p
+    return suffix
+
+
 def insert_suffix(old_string, suffix, table_type='drop'):
     """Inserts a suffix at appropriate position in a specific DDL statement"""
     if table_type == 'drop':
@@ -182,7 +198,7 @@ class Collisions(object):
         self.outfile = None
         self.version = VERSION
         self.names = Counter()
-        self.suffixes = []
+        self.suffixes = {}
 
     def __repr__(self):
         """ REPR for Collisions"""
@@ -210,14 +226,23 @@ class Collisions(object):
         """Pass through SQL file and create unique suffixes for all SQL
         dump names encountered in file. Store for subsequent use in writing
         appropriate suffix to updated SQL lines."""
-        self.get_all_sql_dump_names()
+        for name in self.get_all_sql_dump_names():
+            if name not in self.suffixes.keys():
+                span = 1
+                while make_suffix_2(name, span) in self.suffixes.values():
+                    span += 1
+                self.suffixes[name] = make_suffix_2(name, span)
+                print(make_suffix_2(name, span))
+                print(self.suffixes)
 
     def get_all_sql_dump_names(self):
         """Find and report all sql dump file names from sqrubber generated comment blocks"""
         SQL_DUMP_LINE = '-- SQL Dump of '.lower()
+        out = []
         for line in self.doc:
             if SQL_DUMP_LINE in line.lower():
-                print(line.rsplit(' ', 1)[1].split('.')[0].lower())
+                out.append(line.rsplit(' ', 1)[1].split('.')[0].lower())
+        return out
 
     @staticmethod
     def _token_in_line(line):
