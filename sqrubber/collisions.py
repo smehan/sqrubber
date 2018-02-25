@@ -27,7 +27,8 @@ VERSION = '0.5.0'
 
 
 def get_sql_dump_name(body, idx: int):
-    """ Extracts sql dump file name from sqrubber generated comment block"""
+    """ Extracts sql dump file name from sqrubber generated comment block which is the
+    dump file name for the current SQL line"""
     SQL_DUMP_LINE = '-- SQL Dump of '.lower()
     while SQL_DUMP_LINE not in body.doc[idx].lower():
         idx -= 1
@@ -181,6 +182,7 @@ class Collisions(object):
         self.outfile = None
         self.version = VERSION
         self.names = Counter()
+        self.suffixes = []
 
     def __repr__(self):
         """ REPR for Collisions"""
@@ -203,6 +205,19 @@ class Collisions(object):
             if not self._token_in_line(line):
                 return True
         return False
+
+    def make_sql_dump_suffixes(self):
+        """Pass through SQL file and create unique suffixes for all SQL
+        dump names encountered in file. Store for subsequent use in writing
+        appropriate suffix to updated SQL lines."""
+        self.get_all_sql_dump_names()
+
+    def get_all_sql_dump_names(self):
+        """Find and report all sql dump file names from sqrubber generated comment blocks"""
+        SQL_DUMP_LINE = '-- SQL Dump of '.lower()
+        for line in self.doc:
+            if SQL_DUMP_LINE in line.lower():
+                print(line.rsplit(' ', 1)[1].split('.')[0].lower())
 
     @staticmethod
     def _token_in_line(line):
@@ -300,6 +315,8 @@ def main(argv):
     if not collisions.validate():
         print("Input has no valid DDL, please check input....")
         exit()
+    # Find all the sql dump names and print them out.
+    collisions.make_sql_dump_suffixes()
     # First find the duplicates
     for line in collisions.doc:
         find_dupes(line, collisions)
