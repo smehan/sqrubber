@@ -41,7 +41,7 @@ def test_validate(cs_sql):
 
 
 def test_get_sql_dump_name(cs_sql):
-    assert 'db_2' == coll.get_sql_dump_name(cs_sql, 80)
+    assert 'db_2' == cs_sql.get_sql_dump_name(80)
 
 
 def test_multiple_sql_find_dupes(cs_sql):
@@ -51,11 +51,12 @@ def test_multiple_sql_find_dupes(cs_sql):
 
 
 def test_multiple_sql_process_dupes(cs_sql):
+    cs_sql.make_sql_dump_suffixes()
     for line in cs_sql.doc:
         coll.find_dupes(line, cs_sql)
     # Then process those found
     for idx, line in enumerate(cs_sql.doc):
-        coll.process_dupes(line, cs_sql, idx)
+        cs_sql.process_dupes(line, idx)
     assert cs_sql.doc[79] == 'DROP TABLE IF EXISTS myschema.der_all_brands_price_data_d_2;'
     assert cs_sql.doc[80] == ''
     assert cs_sql.doc[81] == 'CREATE TABLE myschema.der_all_brands_price_data_d_2 ('
@@ -66,12 +67,14 @@ def test_multiple_sql_process_dupes(cs_sql):
 def test_orphan_create_table(cs_orphan_create_sql):
     """There may be a create table DDL that has no following insert DDL for that table name,
        in which case the process_table_name should return a None, otherwise the new insert"""
+    # First process all SQL Dump Names in file
+    cs_orphan_create_sql.make_sql_dump_suffixes()
     orphan_line = 'CREATE TABLE myschema.der_all_brands_transposed ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(coll.make_suffix(coll.get_sql_dump_name(cs_orphan_create_sql, 106)), cs_orphan_create_sql, 106) is None
+    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(106)), 106) is None
     orphan_line = 'CREATE TABLE myschema.der_all_brands_price_data ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert coll.process_create_table(coll.make_suffix(coll.get_sql_dump_name(cs_orphan_create_sql, 84)), cs_orphan_create_sql, 84) == \
+    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(84)), 84) == \
         'INSERT INTO myschema.der_all_brands_price_data_d_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
 
 

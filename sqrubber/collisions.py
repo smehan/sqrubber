@@ -26,18 +26,6 @@ MAX_LENGTH = 63
 VERSION = '0.5.0'
 
 
-def get_sql_dump_name(body, idx: int):
-    """ Extracts sql dump file name from sqrubber generated comment block which is the
-    dump file name for the current SQL line"""
-    SQL_DUMP_LINE = '-- SQL Dump of '.lower()
-    while SQL_DUMP_LINE not in body.doc[idx].lower():
-        idx -= 1
-    try:
-        return body.doc[idx].lower().rsplit(' ', 1)[1].split('.')[0].lower()
-    except IndexError:
-        return None
-
-
 def make_suffix(dump_name: str)-> str:
     """ Makes a suffix which is a contraction of extracted sql dump name.
         Is acronym of first letters in words plus _DATE """
@@ -48,22 +36,6 @@ def make_suffix(dump_name: str)-> str:
             continue
         if p[0].isalpha():
             suffix += p[0]
-        elif p[0].isdigit():
-            suffix += '_'
-            suffix += p
-    return suffix
-
-
-def make_suffix_2(dump_name: str, span: int)-> str:
-    """Makes a suffix with a variable number of letters from distinguishing factors
-    in extracted SQL dump name. Extracted letters in words plus _DATE"""
-    suffix = ''
-    for p in dump_name.split('_'):
-        p = p.strip('_')
-        if len(p) == 0:
-            continue
-        if p[0].isalpha():
-            suffix += p[0:span]
         elif p[0].isdigit():
             suffix += '_'
             suffix += p
@@ -86,74 +58,6 @@ def is_processable(line: str):
     if 'drop table' in line.lower() or 'create table' in line.lower():
         return True
     return False
-
-
-def process_drop_table(suffix: str, body, idx: int):
-    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'drop')
-
-
-def process_create_table(suffix: str, body, idx: int, recurse=False):
-    if not recurse:
-        body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'create')
-    while 'insert into' not in body.doc[idx].lower() and idx < len(body.doc) - 1:
-        idx += 1
-        if is_processable(body.doc[idx]):
-            return
-    # guard against end of doc overrun
-    if idx == len(body.doc) - 1:
-        return
-    body.doc[idx] = insert_suffix(body.doc[idx], suffix, 'insert')
-    # recurse for multiple inserts
-    process_create_table(suffix, body, idx+1, recurse=True)
-    return body.doc[idx]
-
-
-def make_table_name(body, idx: int, suffix: str):
-    # "drop table if exists ingest.db033_grocery_convenience_data_entry_chicago_data_entry_spring_2016;"
-    # 'drop table if exists' = 21
-    line = body.doc[idx].lower()
-    if 'drop table if exists ' in line:
-        start = 21
-        end = line.index(';')
-    # create table ingest.db033_sub_category_sort (
-    elif 'create table ' in line:
-        start = 13
-        end = line.index(' (')
-    # INSERT INTO ingest.db008_all_data_2015_may (market,  category, item, price, register_ring___beverages, qc_notes)
-    elif 'insert into ' in line:
-        start = 12
-        end = line.index(' (')
-    # fn is the full identifier, including schema components
-    fn = line[start:end]
-    # tn is the table name with no schema
-    tn = fn.split('.')[1]
-    if len(tn) > MAX_LENGTH:
-        print(f'Length: {len(tn)} - {tn}')
-    return fn
-
-
-def process_table_name(line: str, body, idx: int):
-    """Splits the processing into two branches based on drop or create table in DDL line"""
-    if not is_processable(line):
-        return
-    table_suffix = make_suffix(get_sql_dump_name(body, idx))
-    if 'drop table' in line:
-        process_drop_table(table_suffix, body, idx)
-    elif 'create table' in line:
-        process_create_table(table_suffix, body, idx)
-    new_table_name = make_table_name(body, idx, table_suffix)
-
-
-def process_dupes(line: str, body, idx: int):
-    """Given a list of duplicate table names, make them unique.
-    These lines are contextualized by DDL keyword, e.g., DROP tablename is
-    different to CREATE tablename and so the test of > 1 is measuring by context.
-    :param line: the current line of the doc being processed
-    :param body: the collisions object formed from the file being processed
-    :param idx: the index of the line"""
-    if body.names[line.lower()] > 1:
-        process_table_name(line.lower(), body, idx)
-    return
 
 
 def find_dupes(line: str, body):
@@ -222,6 +126,17 @@ class Collisions(object):
                 return True
         return False
 
+    def get_sql_dump_name(self, idx: int):
+        """ Extracts sql dump file name from sqrubber generated comment block which is the
+        dump file name for the current SQL line"""
+        SQL_DUMP_LINE = '-- SQL Dump of '.lower()
+        while SQL_DUMP_LINE not in self.doc[idx].lower():
+            idx -= 1
+        try:
+            return self.doc[idx].lower().rsplit(' ', 1)[1].split('.')[0].lower()
+        except IndexError:
+            return None
+
     def make_sql_dump_suffixes(self):
         """Pass through SQL file and create unique suffixes for all SQL
         dump names encountered in file. Store for subsequent use in writing
@@ -243,6 +158,70 @@ class Collisions(object):
             if SQL_DUMP_LINE in line.lower():
                 out.append(line.rsplit(' ', 1)[1].split('.')[0].lower())
         return out
+
+    def process_drop_table(self, suffix: str, idx: int):
+        self.doc[idx] = insert_suffix(self.doc[idx], suffix, 'drop')
+
+    def process_create_table(self, suffix: str, idx: int, recurse=False):
+        if not recurse:
+            self.doc[idx] = insert_suffix(self.doc[idx], suffix, 'create')
+        while 'insert into' not in self.doc[idx].lower() and idx < len(self.doc) - 1:
+            idx += 1
+            if is_processable(self.doc[idx]):
+                return
+        # guard against end of doc overrun
+        if idx == len(self.doc) - 1:
+            return
+        self.doc[idx] = insert_suffix(self.doc[idx], suffix, 'insert')
+        # recurse for multiple inserts
+        self.process_create_table(suffix, idx + 1, recurse=True)
+        return self.doc[idx]
+
+    def process_table_name(self, line: str, idx: int):
+        """Splits the processing into two branches based on drop or create table in DDL line"""
+        if not is_processable(line):
+            return
+        # table_suffix = make_suffix(get_sql_dump_name(self.doc, idx))
+        table_suffix = self.suffixes[self.get_sql_dump_name(idx)]
+        if 'drop table' in line:
+            self.process_drop_table(table_suffix, idx)
+        elif 'create table' in line:
+            self.process_create_table(table_suffix, idx)
+        new_table_name = self.make_table_name(idx, table_suffix)
+
+    def make_table_name(self, idx: int, suffix: str):
+        # "drop table if exists ingest.db033_grocery_convenience_data_entry_chicago_data_entry_spring_2016;"
+        # 'drop table if exists' = 21
+        line = self.doc[idx].lower()
+        if 'drop table if exists ' in line:
+            start = 21
+            end = line.index(';')
+        # create table ingest.db033_sub_category_sort (
+        elif 'create table ' in line:
+            start = 13
+            end = line.index(' (')
+        # INSERT INTO ingest.db008_all_data_2015_may (market,  category, item, price, register_ring___beverages, qc_notes)
+        elif 'insert into ' in line:
+            start = 12
+            end = line.index(' (')
+        # fn is the full identifier, including schema components
+        fn = line[start:end]
+        # tn is the table name with no schema
+        tn = fn.split('.')[1]
+        if len(tn) > MAX_LENGTH:
+            print(f'Length: {len(tn)} - {tn}')
+        return fn
+
+    def process_dupes(self, line: str, idx: int):
+        """Given a list of duplicate table names, make them unique.
+        These lines are contextualized by DDL keyword, e.g., DROP tablename is
+        different to CREATE tablename and so the test of > 1 is measuring by context.
+        :param line: the current line of the doc being processed
+        :param body: the collisions object formed from the file being processed
+        :param idx: the index of the line"""
+        if self.names[line.lower()] > 1:
+            self.process_table_name(line.lower(), idx)
+        return
 
     @staticmethod
     def _token_in_line(line):
@@ -347,7 +326,7 @@ def main(argv):
         find_dupes(line, collisions)
     # Then process those found
     for idx, line in enumerate(collisions.doc):
-        process_dupes(line, collisions, idx)
+        collisions.process_dupes(line, idx)
     collisions.write_dump()
     collisions.destroy()
 
