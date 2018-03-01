@@ -187,6 +187,7 @@ class Collisions(object):
 
     def process_dupes(self, line: str, idx: int):
         """Given a list of duplicate table names, make them unique.
+        self.names is a Counter with frequencies of TNs in document.
         These lines are contextualized by DDL keyword, e.g., DROP tablename is
         different to CREATE tablename and so the test of > 1 is measuring by context.
         :param line: the current line of the doc being processed
