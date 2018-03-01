@@ -11,7 +11,6 @@ import os
 import sys
 import getopt
 import datetime
-import pathlib
 from collections import Counter
 
 # 3rd party libs
