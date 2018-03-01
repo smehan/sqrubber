@@ -131,8 +131,6 @@ class Collisions(object):
                 while self.make_suffix(name, span) in self.suffixes.values():
                     span += 1
                 self.suffixes[name] = self.make_suffix(name, span)
-                print(self.make_suffix(name, span))
-                print(self.suffixes)
 
     def get_all_sql_dump_names(self):
         """Find and report all sql dump file names from sqrubber generated comment blocks"""
@@ -209,7 +207,7 @@ class Collisions(object):
         # tn is the table name with no schema
         tn = fn.split('.')[1]
         if len(tn) > MAX_LENGTH:
-            print(f'Length: {len(tn)} - {tn}')
+            print(f'WARNING!! Length: {len(tn)} - {tn}')
         return fn
 
     def process_dupes(self, line: str, idx: int):
