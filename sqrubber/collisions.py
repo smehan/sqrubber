@@ -184,30 +184,6 @@ class Collisions(object):
             self.process_drop_table(table_suffix, idx)
         elif 'create table' in line:
             self.process_create_table(table_suffix, idx)
-        new_table_name = self.make_table_name(idx, table_suffix)
-
-    def make_table_name(self, idx: int, suffix: str):
-        # "drop table if exists ingest.db033_grocery_convenience_data_entry_chicago_data_entry_spring_2016;"
-        # 'drop table if exists' = 21
-        line = self.doc[idx].lower()
-        if 'drop table if exists ' in line:
-            start = 21
-            end = line.index(';')
-        # create table ingest.db033_sub_category_sort (
-        elif 'create table ' in line:
-            start = 13
-            end = line.index(' (')
-        # INSERT INTO ingest.db008_all_data_2015_may (market,  category, item, price, register_ring___beverages, qc_notes)
-        elif 'insert into ' in line:
-            start = 12
-            end = line.index(' (')
-        # fn is the full identifier, including schema components
-        fn = line[start:end]
-        # tn is the table name with no schema
-        tn = fn.split('.')[1]
-        if len(tn) > MAX_LENGTH:
-            print(f'WARNING!! Length: {len(tn)} - {tn}')
-        return fn
 
     def process_dupes(self, line: str, idx: int):
         """Given a list of duplicate table names, make them unique.
