@@ -26,22 +26,6 @@ MAX_LENGTH = 63
 VERSION = '0.5.0'
 
 
-def make_suffix(dump_name: str)-> str:
-    """ Makes a suffix which is a contraction of extracted sql dump name.
-        Is acronym of first letters in words plus _DATE """
-    suffix = ''
-    for p in dump_name.split('_'):
-        p = p.strip('_')
-        if len(p) == 0:
-            continue
-        if p[0].isalpha():
-            suffix += p[0]
-        elif p[0].isdigit():
-            suffix += '_'
-            suffix += p
-    return suffix
-
-
 def insert_suffix(old_string, suffix, table_type='drop'):
     """Inserts a suffix at appropriate position in a specific DDL statement"""
     if table_type == 'drop':
@@ -144,10 +128,10 @@ class Collisions(object):
         for name in self.get_all_sql_dump_names():
             if name not in self.suffixes.keys():
                 span = 1
-                while make_suffix_2(name, span) in self.suffixes.values():
+                while self.make_suffix(name, span) in self.suffixes.values():
                     span += 1
-                self.suffixes[name] = make_suffix_2(name, span)
-                print(make_suffix_2(name, span))
+                self.suffixes[name] = self.make_suffix(name, span)
+                print(self.make_suffix(name, span))
                 print(self.suffixes)
 
     def get_all_sql_dump_names(self):
@@ -158,6 +142,22 @@ class Collisions(object):
             if SQL_DUMP_LINE in line.lower():
                 out.append(line.rsplit(' ', 1)[1].split('.')[0].lower())
         return out
+
+    @staticmethod
+    def make_suffix(dump_name: str, span: int) -> str:
+        """Makes a suffix with a variable number of letters from distinguishing factors
+        in extracted SQL dump name. Extracted letters in words plus _DATE"""
+        suffix = ''
+        for p in dump_name.split('_'):
+            p = p.strip('_')
+            if len(p) == 0:
+                continue
+            if p[0].isalpha():
+                suffix += p[0:span]
+            elif p[0].isdigit():
+                suffix += '_'
+                suffix += p
+        return suffix
 
     def process_drop_table(self, suffix: str, idx: int):
         self.doc[idx] = insert_suffix(self.doc[idx], suffix, 'drop')

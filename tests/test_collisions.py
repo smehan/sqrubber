@@ -71,13 +71,13 @@ def test_orphan_create_table(cs_orphan_create_sql):
     cs_orphan_create_sql.make_sql_dump_suffixes()
     orphan_line = 'CREATE TABLE myschema.der_all_brands_transposed ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(106)), 106) is None
+    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(106), 1), 106) is None
     orphan_line = 'CREATE TABLE myschema.der_all_brands_price_data ('.lower()
     coll.find_dupes(orphan_line, cs_orphan_create_sql)
-    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(84)), 84) == \
+    assert cs_orphan_create_sql.process_create_table(cs_orphan_create_sql.make_suffix(cs_orphan_create_sql.get_sql_dump_name(84), 1), 84) == \
         'INSERT INTO myschema.der_all_brands_price_data_d_2 (market, name, store_num, category, item, size_or_quantity, price, date)'
 
 
-def test_make_suffix():
-    assert coll.make_suffix('wilkes_barre_report_fall_2016') == \
+def test_make_suffix(cs_sql):
+    assert cs_sql.make_suffix('wilkes_barre_report_fall_2016', 1) == \
         'wbrf_2016'
